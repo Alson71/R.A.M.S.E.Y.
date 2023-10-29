@@ -9,12 +9,20 @@ class RAMSEY:
     
     customtkinter.set_appearance_mode("dark")
     tkWindow = customtkinter.CTk()
-    tkWindow.geometry("1000x600")
+    
+    w = 1000
+    h = 600
+    screenWidth = tkWindow.winfo_screenwidth()
+    screenHeight = tkWindow.winfo_screenheight()
+    x = (screenWidth/2) - (w/2)
+    y = (screenHeight/2) - (h/2)
+    
+    tkWindow.geometry("%dx%d+%d+%d" % (w,h,x,y))
     tkWindow.title("RAMSEY")
     tkWindow.resizable("False","False")
     
     parameters = [None] * 3
-    parameters[0] = ["American","Indian","Chinese","Japanese","Greek","Mexican","French","Peruvian","Korean","Thai""Cuban", "Dominican", "Vietnamese", "Spain", "Brazilian", "Colombian", "Filippino", "Jamaican", "Russian", "Italian"]
+    parameters[0] = ["American","Indian","Chinese","Japanese","Greek","Mexican","French","Peruvian","Korean","Thai","Cuban", "Dominican", "Vietnamese", "Spain", "Brazilian", "Colombian", "Filippino", "Jamaican", "Russian", "Italian"]
     parameters[1] = ["Manhattan","Queens","Staten Island","Bronx","Brooklyn"]
     parameters[2] = ["None","None","None","None","None"]
     options = ["Cuisine", "Borough", "Area"]
