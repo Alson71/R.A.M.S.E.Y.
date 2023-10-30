@@ -16,6 +16,7 @@ class RAMSEY:
     screenHeight = tkWindow.winfo_screenheight()
     x = (screenWidth/2) - (w/2)
     y = (screenHeight/2) - (h/2)
+    print("this is just a test")
     
     tkWindow.geometry("%dx%d+%d+%d" % (w,h,x,y))
     tkWindow.title("RAMSEY")
