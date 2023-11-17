@@ -1,4 +1,8 @@
 from tkinter import *
+import PIL.Image
+import os
+import sys
+from PIL import ImageTk
 import customtkinter
 
 
@@ -7,26 +11,49 @@ class RAMSEY:
     global cuisines,cuisines2,areas
     global labels, options
     
-    customtkinter.set_appearance_mode("dark") 
-    tkWindow = customtkinter.CTk()
+    #Initializing all of the Tkinter Windows
+    customtkinter.set_appearance_mode("dark")
+    tkWindow = [None] * 3
+    for i in range(3):
+        tkWindow[i] = customtkinter.CTk()
+        w = 1000
+        h = 600
+        screenWidth = tkWindow[i].winfo_screenwidth()
+        screenHeight = tkWindow[i].winfo_screenheight()
+        x = (screenWidth/2) - (w/2)
+        y = (screenHeight/2) - (h/2)
     
-    w = 1000
-    h = 600
-    screenWidth = tkWindow.winfo_screenwidth()
-    screenHeight = tkWindow.winfo_screenheight()
-    x = (screenWidth/2) - (w/2)
-    y = (screenHeight/2) - (h/2)
-    
-    tkWindow.geometry("%dx%d+%d+%d" % (w,h,x,y))
-    tkWindow.title("RAMSEY")
-    tkWindow.resizable("False","False")
+        tkWindow[i].geometry("%dx%d+%d+%d" % (w,h,x,y))
+        tkWindow[i].title("RAMSEY")
+        tkWindow[i].resizable("False","False")
+        tkWindow[i].wm_protocol("WM_DELETE_WINDOW",exit)
     
     parameters = [None] * 3
     parameters[0] = ["American","Indian","Chinese","Japanese","Greek","Mexican","French","Peruvian","Korean","Thai","Cuban", "Dominican", "Vietnamese", "Spain", "Brazilian", "Colombian", "Filippino", "Jamaican", "Russian", "Italian"]
     parameters[1] = ["Manhattan","Queens","Staten Island","Bronx","Brooklyn"]
     parameters[2] = ["None"]
     options = ["Cuisine", "Borough", "Area"]
-     
+    #End
+    
+    #Tkinter Window 1
+    def closeWindow(*args):
+        tkWindow[0].destroy()
+        tkWindow[1].mainloop()
+        
+    button = customtkinter.CTkButton(tkWindow[0], height = 70, width = 150, command = closeWindow, text = "Ready to Eat?")
+    button.place(x = 420, y = 450)
+    
+    ramseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "R.A.M.S.E.Y.", font = ('Script',60), height = 70, width = 150)
+    ramseyLabel.place(x = 380, y = 300)
+    
+    image = PIL.Image.open(os.path.join(sys.path[0],"cuisine.png"),"r")
+    newImage = image.resize((600, 400))
+    resizeImage = ImageTk.PhotoImage(newImage)
+    picture = customtkinter.CTkLabel(tkWindow[0], image = resizeImage, text = "")
+    picture.place(x = 300, y = 25)
+    #End
+    
+    #Tkinter Window 2     
     vars = [None] * 3
     labels = [None] * 3
     dropdowns = [None] * 3
@@ -36,8 +63,8 @@ class RAMSEY:
         vars[i] = StringVar()
         vars[i].set("Select")
         
-        labels[i] = customtkinter.CTkLabel(tkWindow,fg_color = "transparent", height = 30, width = 100,text = options[i])
-        dropdowns[i] = customtkinter.CTkOptionMenu(tkWindow,variable = vars[i],values = parameters[i],height = 30, width = 100)
+        labels[i] = customtkinter.CTkLabel(tkWindow[1],fg_color = "transparent", height = 30, width = 100,text = options[i])
+        dropdowns[i] = customtkinter.CTkOptionMenu(tkWindow[1],variable = vars[i],values = parameters[i],height = 30, width = 100)
         
         labels[i].place(x = increment, y = 75)
         dropdowns[i].place(x = increment, y = 100)
@@ -51,8 +78,10 @@ class RAMSEY:
     vars[1].trace("w", enableArea)
     
     dropdowns[2].configure(state = "disabled")
+    #End
+   
+    
     
    
 if __name__ == "__main__":
-    tkWindow.mainloop()
-    
+   tkWindow[0].mainloop()
