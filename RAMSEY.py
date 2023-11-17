@@ -4,10 +4,10 @@ import customtkinter
 
 class RAMSEY:
     global tkWindow,parameters,dropdowns
-    global cuisines,cuisines2,brooklynAreas,manhattanAreas,queensAreas,bronxAreas,statenAreas
+    global cuisines,cuisines2,areas
     global labels, options
     
-    customtkinter.set_appearance_mode("dark")
+    customtkinter.set_appearance_mode("dark") 
     tkWindow = customtkinter.CTk()
     
     w = 1000
@@ -24,15 +24,14 @@ class RAMSEY:
     parameters = [None] * 3
     parameters[0] = ["American","Indian","Chinese","Japanese","Greek","Mexican","French","Peruvian","Korean","Thai","Cuban", "Dominican", "Vietnamese", "Spain", "Brazilian", "Colombian", "Filippino", "Jamaican", "Russian", "Italian"]
     parameters[1] = ["Manhattan","Queens","Staten Island","Bronx","Brooklyn"]
-    parameters[2] = ["None","None","None","None","None"]
+    parameters[2] = ["None"]
     options = ["Cuisine", "Borough", "Area"]
-    
-    
-   
+     
     vars = [None] * 3
     labels = [None] * 3
     dropdowns = [None] * 3
     increment = 230
+    
     for i in range(3):
         vars[i] = StringVar()
         vars[i].set("Select")
@@ -43,7 +42,16 @@ class RAMSEY:
         labels[i].place(x = increment, y = 75)
         dropdowns[i].place(x = increment, y = 100)
         increment += 200
-        
+    
+    def enableArea(*args):
+        if dropdowns[0].get() != "Select" and dropdowns[1].get() != "Select":
+            dropdowns[2].configure(state = "normal") 
+     
+    vars[0].trace("w",enableArea)       
+    vars[1].trace("w", enableArea)
+    
+    dropdowns[2].configure(state = "disabled")
+    
    
 if __name__ == "__main__":
     tkWindow.mainloop()
