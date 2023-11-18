@@ -11,6 +11,15 @@ class RAMSEY:
     global cuisines,cuisines2,areas
     global labels, options
     
+    #Areas for each borough
+    areas = [None] * 5
+    areas[0] = ["Upper East Side", "Upper West Side", "Midtown", "Greenwich", "East Village"]
+    areas[1] = ["Long Island City", "Astoria", "Forest Hills", "Queens Village", "Kew Gardens"]
+    areas[2] = ["Riverdale", "Morris Park", "Parkchester", "Pelham Bay", "Fordham"]
+    areas[3] = ["Brooklyn Heights", "DUMBO", "Prospect Heights", "Coney Island", "Flatbush"]
+    areas[4] = ["Flushing", "Astoria", "Forest Hills", "Queens Village", "Kew Gardens"]
+    #End
+    
     #Initializing all of the Tkinter Windows
     customtkinter.set_appearance_mode("dark")
     tkWindow = [None] * 3
@@ -75,7 +84,7 @@ class RAMSEY:
     def enableArea(*args):
         if dropdowns[0].get() != "Select" and dropdowns[1].get() != "Select":
             dropdowns[2].configure(state = "normal") 
-     
+    
     vars[0].trace("w",enableArea)       
     vars[1].trace("w", enableArea)
     
