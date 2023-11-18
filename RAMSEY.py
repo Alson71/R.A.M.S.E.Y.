@@ -17,7 +17,7 @@ class RAMSEY:
     areas[1] = ["Long Island City", "Astoria", "Forest Hills", "Queens Village", "Kew Gardens"]
     areas[2] = ["Riverdale", "Morris Park", "Parkchester", "Pelham Bay", "Fordham"]
     areas[3] = ["Brooklyn Heights", "DUMBO", "Prospect Heights", "Coney Island", "Flatbush"]
-    areas[4] = ["West Brighton", "St. George", "Fort Wadsworth", "Charleston", "Dongan Hills"]
+    areas[4] = ["North Shore", "Mid-Island", "South Shore", "Charleston", "Dongan Hills"]
     #End
     
     #Initializing all of the Tkinter Windows
