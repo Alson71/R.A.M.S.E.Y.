@@ -44,7 +44,9 @@ class RAMSEY:
     button.place(x = 420, y = 450)
     
     ramseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "R.A.M.S.E.Y.", font = ('Script',60), height = 70, width = 150)
+    otherRamseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "(Remarkable Aromas Make Sizzling Enjoyable Yumminess)", font = ('Script',40), height = 60, width = 150)
     ramseyLabel.place(x = 380, y = 300)
+    otherRamseyLabel.place(x = 200, y = 370)
     
     image = PIL.Image.open(os.path.join(sys.path[0],"cuisine.png"),"r")
     newImage = image.resize((600, 400))
