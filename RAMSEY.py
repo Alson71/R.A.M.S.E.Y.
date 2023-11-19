@@ -1,9 +1,8 @@
 from tkinter import *
 import PIL.Image
-import os
-import sys
 from PIL import ImageTk
 import customtkinter
+import requests
 
 
 class RAMSEY:
@@ -17,7 +16,7 @@ class RAMSEY:
     areas[1] = ["Long Island City", "Astoria", "Forest Hills", "Queens Village", "Kew Gardens"]
     areas[2] = ["Riverdale", "Morris Park", "Parkchester", "Pelham Bay", "Fordham"]
     areas[3] = ["Brooklyn Heights", "DUMBO", "Prospect Heights", "Coney Island", "Flatbush"]
-    areas[4] = ["North Shore", "Mid-Island", "South Shore", "Charleston", "Dongan Hills"]
+    areas[4] = ["West Brighton", "St. George", "Fort Wadsworth", "Charleston", "Dongan Hills"]
     #End
     
     #Initializing all of the Tkinter Windows
@@ -57,7 +56,7 @@ class RAMSEY:
     ramseyLabel.place(x = 380, y = 300)
     otherRamseyLabel.place(x = 200, y = 370)
     
-    image = PIL.Image.open(os.path.join(sys.path[0],"cuisine.png"),"r")
+    image = PIL.Image.open(requests.get("https://www.shutterstock.com/image-photo/cuisine-different-countries-western-eastern-600nw-384573541.jpg", stream=True).raw)
     newImage = image.resize((600, 400))
     resizeImage = ImageTk.PhotoImage(newImage)
     picture = customtkinter.CTkLabel(tkWindow[0], image = resizeImage, text = "")
