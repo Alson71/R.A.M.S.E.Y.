@@ -52,19 +52,31 @@ class RAMSEY:
         tkWindow[0].destroy()
         tkWindow[1].mainloop()
         
+    #Sets the background image
+    background_image = PIL.Image.open(requests.get("https://www.bhmpics.com/downloads/food-background-tumblr/5.75dffe608c86bc7c9e2dd1467e6c266e.jpg", stream=True).raw)
+    width, height = tkWindow[0].winfo_screenwidth(), tkWindow[0].winfo_screenheight()
+    newImage1 = background_image.resize((width, height))
+    resizeImage1 = ImageTk.PhotoImage(newImage1)
+    background_label = customtkinter.CTkLabel(tkWindow[0], image=resizeImage1)
+    background_label.place(x= 0,y= 0)
+    
+    anime_picture = PIL.Image.open(requests.get('https://64.media.tumblr.com/b670dd891997869721a4b2b1564aa6eb/tumblr_pklksruLv61u7vq8co1_r1_1280.png', stream =True).raw)
+    newImage2 = anime_picture.resize((350, 350))
+    resizeImage2 = ImageTk.PhotoImage(newImage2)
+    picture = customtkinter.CTkLabel(tkWindow[0], image = resizeImage2, text = "")
+    picture.place(x = 310, y = 25)
+    
+    #The Ready to Eat Button
     button = customtkinter.CTkButton(tkWindow[0], height = 70, width = 150, command = closeWindow, text = "Ready to Eat?")
-    button.place(x = 420, y = 450)
+    button.place(x = 420, y = 510)
     
-    ramseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "R.A.M.S.E.Y.", font = ('Script',60), height = 70, width = 150)
-    otherRamseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "(Remarkable Aromas Make Sizzling Enjoyable Yumminess)", font = ('Script',40), height = 60, width = 150)
-    ramseyLabel.place(x = 380, y = 300)
-    otherRamseyLabel.place(x = 200, y = 370)
+    #Title of the first page
+    ramseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "R.A.M.S.E.Y.", font = ('Script',60), height = 50, width = 110, text_color="white", fg_color='black')
+    otherRamseyLabel = customtkinter.CTkLabel(tkWindow[0], text = "(Remarkable Aromas Make Sizzling Enjoyable Yumminess)", font = ('Script',40), height = 50, width = 120, text_color="white", fg_color='black')
+    ramseyLabel.place(x = 380, y = 390)
+    otherRamseyLabel.place(x = 190, y = 450)
     
-    image = PIL.Image.open(requests.get("https://www.shutterstock.com/image-photo/cuisine-different-countries-western-eastern-600nw-384573541.jpg", stream=True).raw)
-    newImage = image.resize((600, 400))
-    resizeImage = ImageTk.PhotoImage(newImage)
-    picture = customtkinter.CTkLabel(tkWindow[0], image = resizeImage, text = "")
-    picture.place(x = 300, y = 25)
+
     #End
     
     #Tkinter Window 2     
