@@ -61,10 +61,9 @@ class RAMSEY:
     background_label.place(x= 0,y= 0)
     
     anime_picture = PIL.Image.open(requests.get('https://64.media.tumblr.com/b670dd891997869721a4b2b1564aa6eb/tumblr_pklksruLv61u7vq8co1_r1_1280.png', stream =True).raw)
-    newImage2 = anime_picture.resize((350, 350))
-    resizeImage2 = ImageTk.PhotoImage(newImage2)
+    resizeImage2 = customtkinter.CTkImage(dark_image = anime_picture, size = (350,350))
     picture = customtkinter.CTkLabel(tkWindow[0], image = resizeImage2, text = "")
-    picture.place(x = 310, y = 25)
+    picture.place(x = 330, y = 25)
     
     #The Ready to Eat Button
     button = customtkinter.CTkButton(tkWindow[0], height = 70, width = 150, command = closeWindow, text = "Ready to Eat?")
@@ -99,7 +98,6 @@ class RAMSEY:
     def enableArea(*args):
         global vars, temp
 
-        #To reset the areas dropdown box if the user chooses a different borough, but not if they choose a different cuisine
         if temp != dropdowns[1].get() and dropdowns[1].get() != "Select" and dropdowns[2].cget("state") == "normal":
             vars[2].set("Select")
             
