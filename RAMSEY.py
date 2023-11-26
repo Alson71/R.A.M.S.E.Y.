@@ -23,9 +23,8 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.wm_protocol("WM_DELETE_WINDOW",exit)
         
         background_image = PIL.Image.open(requests.get("https://www.bhmpics.com/downloads/food-background-tumblr/5.75dffe608c86bc7c9e2dd1467e6c266e.jpg", stream=True).raw)
-        newImage1 = background_image.resize((screenWidth, screenHeight))
-        resizeImage1 = ImageTk.PhotoImage(newImage1)
-        background_label = customtkinter.CTkLabel(self, image=resizeImage1)
+        newImage1 = customtkinter.CTkImage(dark_image = background_image, size = (screenWidth, screenHeight))
+        background_label = customtkinter.CTkLabel(self, image=newImage1)
         background_label.place(x= 0,y= 0)
         
         anime_picture = PIL.Image.open(requests.get('https://64.media.tumblr.com/b670dd891997869721a4b2b1564aa6eb/tumblr_pklksruLv61u7vq8co1_r1_1280.png', stream =True).raw)
@@ -67,9 +66,8 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.wm_protocol("WM_DELETE_WINDOW",exit)
         
         background_image = PIL.Image.open(requests.get("https://www.bhmpics.com/downloads/food-background-tumblr/5.75dffe608c86bc7c9e2dd1467e6c266e.jpg", stream=True).raw)
-        newImage1 = background_image.resize((screenWidth, screenHeight))
-        resizeImage1 = ImageTk.PhotoImage(newImage1)
-        background_label = customtkinter.CTkLabel(self, image=resizeImage1)
+        newImage1 = customtkinter.CTkImage(dark_image = background_image, size = (screenWidth, screenHeight))
+        background_label = customtkinter.CTkLabel(self, image=newImage1)
         background_label.place(x= 0,y= 0)
     
         self.areas = [None] * 5
@@ -108,7 +106,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.vars[1].trace("w", self.enableArea)
         self.dropdowns[2].configure(state = "disabled")
         
-    def enableArea(self, *args):
+    def enableArea(self,*args):
         if self.temp != self.dropdowns[1].get() and self.dropdowns[1].get() != "Select" and self.dropdowns[2].cget("state") == "normal":
                 self.vars[2].set("Select")
                   
