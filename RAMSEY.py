@@ -24,8 +24,7 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.wm_protocol("WM_DELETE_WINDOW",exit)
         
         background_image = PIL.Image.open(requests.get("https://cdn.openart.ai/stable_diffusion/05d2d2aa852fd048b29b4e0b13972653dd20c2b7_2000x2000.webp", stream=True).raw)
-        #newImage1 = customtkinter.CTkImage(dark_image = background_image, size = (screenWidth, screenHeight))
-        resizeImage1 = ImageTk.PhotoImage(background_image)
+        resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
         background_label = customtkinter.CTkLabel(self, image=resizeImage1, text = "")
         background_label.place(x= 0,y= -150)
         
@@ -35,6 +34,8 @@ class RAMSEYFrame1(customtkinter.CTk):
         picture.place(x = 330, y = 25)
         
         anime_animated = PIL.Image.open(requests.get('https://i.pinimg.com/564x/e3/90/a4/e390a4626bab79e09d85b87f98f3c2d9.jpg', stream =True).raw)
+        anime_animated.putalpha(65)
+        anime_animated.save('No_Background.png')
         resizeImage3 = customtkinter.CTkImage(dark_image = anime_animated, size = (100,100))
         picture = customtkinter.CTkLabel(self, image = resizeImage3, text = "")
         picture.place(x = 330, y = 25)
@@ -73,10 +74,9 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.wm_protocol("WM_DELETE_WINDOW",exit)
         
         background_image = PIL.Image.open(requests.get("https://static0.gamerantimages.com/wordpress/wp-content/uploads/2022/10/1-Main-Feature-Photo.jpg", stream=True).raw)
-        #newImage1 = background_image.resize((screenWidth, screenHeight))
-        resizeImage1 = ImageTk.PhotoImage(background_image)
+        resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
         background_label = customtkinter.CTkLabel(self, image=resizeImage1, text = "")
-        background_label.place(x= -140,y= -140)
+        background_label.place(x= -90,y= -80)
         
     
         self.areas = [None] * 5
