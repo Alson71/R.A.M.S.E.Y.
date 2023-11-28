@@ -8,6 +8,7 @@ import requests
 class RAMSEYFrame1(customtkinter.CTk):
     customtkinter.set_appearance_mode("dark")
     
+    #Constructor for Frame 1
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         w = 1000
@@ -22,14 +23,20 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.resizable("False","False")
         self.wm_protocol("WM_DELETE_WINDOW",exit)
         
-        background_image = PIL.Image.open(requests.get("https://www.bhmpics.com/downloads/food-background-tumblr/5.75dffe608c86bc7c9e2dd1467e6c266e.jpg", stream=True).raw)
-        newImage1 = customtkinter.CTkImage(dark_image = background_image, size = (screenWidth, screenHeight))
-        background_label = customtkinter.CTkLabel(self, image=newImage1)
-        background_label.place(x= 0,y= 0)
+        background_image = PIL.Image.open(requests.get("https://cdn.openart.ai/stable_diffusion/05d2d2aa852fd048b29b4e0b13972653dd20c2b7_2000x2000.webp", stream=True).raw)
+        #newImage1 = customtkinter.CTkImage(dark_image = background_image, size = (screenWidth, screenHeight))
+        resizeImage1 = ImageTk.PhotoImage(background_image)
+        background_label = customtkinter.CTkLabel(self, image=resizeImage1, text = "")
+        background_label.place(x= 0,y= -150)
         
         anime_picture = PIL.Image.open(requests.get('https://64.media.tumblr.com/b670dd891997869721a4b2b1564aa6eb/tumblr_pklksruLv61u7vq8co1_r1_1280.png', stream =True).raw)
         resizeImage2 = customtkinter.CTkImage(dark_image = anime_picture, size = (350,350))
         picture = customtkinter.CTkLabel(self, image = resizeImage2, text = "")
+        picture.place(x = 330, y = 25)
+        
+        anime_animated = PIL.Image.open(requests.get('https://i.pinimg.com/564x/e3/90/a4/e390a4626bab79e09d85b87f98f3c2d9.jpg', stream =True).raw)
+        resizeImage3 = customtkinter.CTkImage(dark_image = anime_animated, size = (100,100))
+        picture = customtkinter.CTkLabel(self, image = resizeImage3, text = "")
         picture.place(x = 330, y = 25)
         
         ramseyLabel = customtkinter.CTkLabel(self, text = "R.A.M.S.E.Y.", font = ('Script',60), height = 50, width = 110, text_color="white", fg_color='black')
@@ -65,10 +72,12 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.resizable("False","False")
         self.wm_protocol("WM_DELETE_WINDOW",exit)
         
-        background_image = PIL.Image.open(requests.get("https://www.bhmpics.com/downloads/food-background-tumblr/5.75dffe608c86bc7c9e2dd1467e6c266e.jpg", stream=True).raw)
-        newImage1 = customtkinter.CTkImage(dark_image = background_image, size = (screenWidth, screenHeight))
-        background_label = customtkinter.CTkLabel(self, image=newImage1)
-        background_label.place(x= 0,y= 0)
+        background_image = PIL.Image.open(requests.get("https://static0.gamerantimages.com/wordpress/wp-content/uploads/2022/10/1-Main-Feature-Photo.jpg", stream=True).raw)
+        #newImage1 = background_image.resize((screenWidth, screenHeight))
+        resizeImage1 = ImageTk.PhotoImage(background_image)
+        background_label = customtkinter.CTkLabel(self, image=resizeImage1, text = "")
+        background_label.place(x= -140,y= -140)
+        
     
         self.areas = [None] * 5
         self.areas[0] = ["Upper East Side", "Upper West Side", "Midtown", "Greenwich", "East Village"]
@@ -106,7 +115,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.vars[1].trace("w", self.enableArea)
         self.dropdowns[2].configure(state = "disabled")
         
-    def enableArea(self,*args):
+    def enableArea(self, *args):
         if self.temp != self.dropdowns[1].get() and self.dropdowns[1].get() != "Select" and self.dropdowns[2].cget("state") == "normal":
                 self.vars[2].set("Select")
                   
