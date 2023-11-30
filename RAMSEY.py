@@ -1,8 +1,10 @@
 from tkinter import *
 import PIL.Image
-from PIL import ImageTk
 import customtkinter
 import requests
+from googlemaps import Client 
+from tkinter.ttk import *
+from time import sleep 
 
 #The first window
 class RAMSEYFrame1(customtkinter.CTk):
@@ -47,6 +49,7 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.button.place(x = 420, y = 510)
         
         
+        
     def closeWindow(self):
         self.destroy()
         ramseyFrame2 = RAMSEYFrame2()
@@ -57,6 +60,8 @@ class RAMSEYFrame2(customtkinter.CTk):
     
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)   
+
+
         
         w = 1000
         h = 600
@@ -96,6 +101,9 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.labels = [None] * 3
         self.dropdowns = [None] * 3
         self.increment = 160
+        self.result_labels = [None] * 3
+        self.tempFields = [None] * 3
+        self.viewButtons = [None] * 3
     
         for i in range(3):
             self.vars[i] = StringVar()
@@ -103,17 +111,31 @@ class RAMSEYFrame2(customtkinter.CTk):
         
             self.labels[i] = customtkinter.CTkLabel(self,fg_color = "transparent", height = 35, width = 105,text = self.options[i])
             self.dropdowns[i] = customtkinter.CTkOptionMenu(self,variable = self.vars[i],values = self.parameters[i],height = 35, width = 105)
-        
+            
+            self.viewButtons[i] = customtkinter.CTkButton(self, text = "View", height = 30, width = 100, command = self.showLoading)
+            
+            
+            self.tempFields[i] = ""
             self.labels[i].place(x = self.increment, y = 55)
             self.dropdowns[i].place(x = self.increment, y = 80)
+            self.result_labels[i] = customtkinter.CTkLabel(self, bg_color="transparent", height=30, width=100, text="")
             self.increment += 280
 
         self.vars[0].trace("w",self.enableArea)       
         self.vars[1].trace("w", self.enableArea)
-        self.vars[1].trace("w", self.enableButton)
-        self.vars[2].trace("w", self.enableButton)
+        self.vars[0].trace("w",self.fetch_top_places)
+        self.vars[1].trace("w",self.fetch_top_places)
+        self.vars[2].trace("w",self.fetch_top_places)
         self.dropdowns[2].configure(state = "disabled")
-        
+
+       
+        # Initialize Google Maps API client with your API key
+        self.api_key = 'AIzaSyAK1ms7Rl6vOVsZifEZPvCAgjT_ivmJGUY'  # Replace with your actual Google Places API key
+        self.gmaps = Client(key=self.api_key)
+
+            
+            
+   
     def enableArea(self, *args):
         if self.temp != self.dropdowns[1].get() and self.dropdowns[1].get() != "Select" and self.dropdowns[2].cget("state") == "normal":
                 self.vars[2].set("Select")
@@ -124,30 +146,54 @@ class RAMSEYFrame2(customtkinter.CTk):
                     self.dropdowns[2].configure(values = self.areas[i])
                     self.temp = self.parameters[1][i]
             self.dropdowns[2].configure(state = "normal")
-            
-    def enableButton(self, *args):
-        if self.dropdowns[0].get() != "Select" and self.dropdowns[1].get() != "Select" and self.dropdowns[2].get() != "Select":
-            self.button = customtkinter.CTkButton(self, height = 75, width = 200, command = self.showLoading, text = "Search", font = ('Comic Sans', 26))
-            self.button.place(x = 380, y = 450) 
-            
-            ready_to_eat_picture = PIL.Image.open(requests.get('https://media.comicbook.com/2019/09/evangelion-gendo-1187959.jpeg', stream =True).raw)
-            resizeImage = customtkinter.CTkImage(dark_image = ready_to_eat_picture , size = (400,250))
-            picture = customtkinter.CTkLabel(self, image = resizeImage, text = "")
-            picture.place(x = 280, y = 180)
-            
-            readyLabel = customtkinter.CTkLabel(self, text = "Ready to Eat?", font = ('Comic Sans',35), height = 40, width = 100, text_color="white", fg_color='black')
-            readyLabel.place(x = 390, y = 390)
-            
                 
     def showLoading(self):
+        self.fetch_top_places()  # Call the method to fetch top places
         self.destroy()
         loadingFrame = RAMSEYFrame3()
         loadingFrame.mainloop()
-        
+    
+    # Method to fetch top 3 places based on user selection
+    def fetch_top_places(self,*args):
+        # Get the selected options   
+        cuisine = self.dropdowns[0].get()
+        borough = self.dropdowns[1].get()
+        area = self.dropdowns[2].get()
+    
+        # Fetch top 3 places from Google Places API based on user selection and makes sure to track if one of the fields have been changed
+        if cuisine != "Select" and borough != "Select" and area != "Select" and self.temp == borough:
+            if self.tempFields[0] != self.dropdowns[0].get() or self.tempFields[1] or self.dropdowns[1].get() or self.tempFields[2] != self.dropdowns[2].get():
+                
+                places_result = self.gmaps.places(query=f"{cuisine} restaurant in {area}, {borough}")
+
+            # Get the top 3 places from the API response
+                top_places = places_result['results'][:3]
+
+            # Display the top 3 places in the GUI
+                self.increment = 160
+                for i, place in enumerate(top_places):
+                    place_name = place['name']
+                    self.result_labels[i].configure(text=place_name)
+                    self.viewButtons[i].place(x = self.increment, y = 250)
+                    self.result_labels[i].place(x=self.increment, y=200)
+                    self.increment += 280
+            
+                
+                
+        for i in range(3):
+            self.tempFields[i] = self.dropdowns[i].get()
+            
+    
 #Loading Screen (3rd Frame)       
 class RAMSEYFrame3(customtkinter.CTk):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)   
+        
+        self.isAnimation = False
+        self.isRunning = False
+        self.animationIndex = 0
+        
+        self.animations = ["Working hard for your results", "Working hard for your results.", "Working hard for your results..", "Working hard for your results..."]
         
         w = 1000
         h = 600
@@ -155,13 +201,73 @@ class RAMSEYFrame3(customtkinter.CTk):
         screenHeight = self.winfo_screenheight()
         x = (screenWidth/2) - (w/2)
         y = (screenHeight/2) - (h/2)
-    
+
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
         self.wm_protocol("WM_DELETE_WINDOW",exit)
+
+        theme = Style()
+        theme.theme_use('winnative')
+        theme.configure('green.Horizontal.TProgressbar',background = 'red', thickness = 40 )
+
+        loadingImage = PIL.Image.open(requests.get('https://cdn.openart.ai/uploads/image_Qz5b9Umf_1677711675034_512.webp', stream =True).raw)
+        resizeImage = customtkinter.CTkImage(dark_image = loadingImage, size = (200,200))
+        picture = customtkinter.CTkLabel(self, image = resizeImage, text = "")
+        picture.place(x = 400, y = 125)
+
+        self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
+        self.loadingReminder.place(x= 300, y=350)
+
+        self.bar = Progressbar(self, style = 'green.Horizontal.TProgressbar', orient = 'horizontal', mode = 'indeterminate', length = 900)
+        self.bar.place(x = 400, y = 800)
+        self.update()
+        self.loadingAnimation()
+        
+
+
+    def loadingAnimation(self):
+        
+        for i in range(800):  
+           self.bar['value']+=1
+           self.update_idletasks()
+           if i % 50 == 0:
+               self.animationIndex += 1
+               new_text = self.animations[self.animationIndex % len(self.animations)]
+               self.loadingReminder.configure(width=len(new_text), text = new_text )
+           sleep(0.01)
+        
+        self.loadingReminder.configure(text = "Results Loaded!") 
+        self.loadingReminder.place(x = 395, y = 350)
+        self.bar.destroy()
+        self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.showResults, text = "Proceed!", font = ('Comic Sans', 18))
+        self.button.place(x = 423, y = 500)
+
+    def showResults(self):
+        self.destroy()
+        resultsFrame = RAMSEYFrame4()
+        resultsFrame.mainloop()
+        
+    
         
         
+    
+class RAMSEYFrame4(customtkinter.CTk):
+
+    def init(self,*args,**kwargs):
+        super().init(*args,**kwargs)
+
+        w = 1000
+        h = 600
+        screenWidth = self.winfo_screenwidth()
+        screenHeight = self.winfo_screenheight()
+        x = (screenWidth/2) - (w/2)
+        y = (screenHeight/2) - (h/2)
+
+        self.geometry("%dx%d+%d+%d" % (w,h,x,y))
+        self.title("RAMSEY")
+        self.resizable("False","False")
+        self.wm_protocol("WM_DELETE_WINDOW",exit)        
        
 if __name__ == "__main__":
    ramseyFrame1 = RAMSEYFrame1()
