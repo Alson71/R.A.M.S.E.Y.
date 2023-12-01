@@ -118,7 +118,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.tempFields[i] = ""
             self.labels[i].place(x = self.increment, y = 55)
             self.dropdowns[i].place(x = self.increment, y = 80)
-            self.result_labels[i] = customtkinter.CTkLabel(self, bg_color="transparent", height=30, width=100, text="")
+            self.result_labels[i] = customtkinter.CTkLabel(self, bg_color="transparent", height=40, width=100, text="")
             self.increment += 280
 
         self.vars[0].trace("w",self.enableArea)       
@@ -172,16 +172,57 @@ class RAMSEYFrame2(customtkinter.CTk):
             # Display the top 3 places in the GUI
                 self.increment = 160
                 for i, place in enumerate(top_places):
+                    if 'photos' in place:
+                        photo_reference = place['photos'][0]['photo_reference']  
+                    
+                        photo_params = {
+                            "photoreference": photo_reference,
+                            "key": self.api_key,
+                            "maxwidth": 400,  
+                            "maxheight": 400, 
+                        }
+
+                        tempPhoto = PIL.Image.open(requests.get(f"https://maps.googleapis.com/maps/api/place/photo?photoreference={photo_reference}&key={self.api_key}&maxwidth={photo_params['maxwidth']}&maxheight={photo_params['maxheight']}", stream = True).raw)
+                        placesPhoto = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
+                        placesLabel = customtkinter.CTkLabel(self,image = placesPhoto, text = "")
+                        placesLabel.place(x = self.increment - 70, y = 150)
+
+                        
+                        
                     place_name = place['name']
+                    name = place_name
+                    if(len(place_name) >= 17):
+                        place_name = self.textWrapping(name,17,True,34)
+                    
+                    
                     self.result_labels[i].configure(text=place_name)
-                    self.viewButtons[i].place(x = self.increment, y = 250)
-                    self.result_labels[i].place(x=self.increment, y=200)
+                    self.viewButtons[i].place(x = self.increment, y = 450)
+                    self.result_labels[i].place(x=self.increment, y=400)
                     self.increment += 280
             
                 
                 
         for i in range(3):
             self.tempFields[i] = self.dropdowns[i].get()
+   
+   #General text wrapping solution to make sure 
+    def textWrapping(self, randomString, length, enableSpecifiedLimit, specifiedLimit): #Specified limit is used to check if the text is too long (put 'False' and '0' for those fields there is no specific limit needed)
+        wrappedString = ""
+        stringArray = randomString.split()
+        temp = 0
+        cumulativeCounter = 0
+        for word in stringArray:
+            if enableSpecifiedLimit:
+                if cumulativeCounter > specifiedLimit: #Place title is too long
+                    break
+            
+            cumulativeCounter += len(word) + 1
+            temp += len(word) + 1  
+            if temp >= length:
+                wrappedString += "\n"
+                temp = len(word) + 1 
+            wrappedString += word + " "
+        return wrappedString
             
     
 #Loading Screen (3rd Frame)       
@@ -246,11 +287,7 @@ class RAMSEYFrame3(customtkinter.CTk):
     def showResults(self):
         self.destroy()
         resultsFrame = RAMSEYFrame4()
-        resultsFrame.mainloop()
-        
-    
-        
-        
+        resultsFrame.mainloop()    
     
 class RAMSEYFrame4(customtkinter.CTk):
 
