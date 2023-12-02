@@ -295,8 +295,8 @@ class RAMSEYFrame3(customtkinter.CTk):
 #Class that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTk):
 
-    def init(self,*args,**kwargs):
-        super().init(*args,**kwargs)
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
 
         w = 1000
         h = 600
