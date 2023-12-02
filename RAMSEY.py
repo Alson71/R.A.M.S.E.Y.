@@ -195,15 +195,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                 for i, place in enumerate(top_places):
                     if 'photos' in place:
                         photo_reference = place['photos'][0]['photo_reference']  
-                    
-                        photo_params = {
-                            "photoreference": photo_reference,
-                            "key": self.api_key,
-                            "maxwidth": 400,  
-                            "maxheight": 400, 
-                        }
-
-                        tempPhoto = PIL.Image.open(requests.get(f"https://maps.googleapis.com/maps/api/place/photo?photoreference={photo_reference}&key={self.api_key}&maxwidth={photo_params['maxwidth']}&maxheight={photo_params['maxheight']}", stream = True).raw)
+                        tempPhoto = PIL.Image.open(requests.get(f"https://maps.googleapis.com/maps/api/place/photo?photoreference={photo_reference}&key={self.api_key}&maxwidth={400}&maxheight={400}", stream = True).raw)
                         placesPhoto = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
                         placesLabel = customtkinter.CTkLabel(self,image = placesPhoto, text = "")
                         placesLabel.place(x = self.increment - 70, y = 150)
