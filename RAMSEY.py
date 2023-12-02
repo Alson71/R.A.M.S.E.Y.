@@ -117,6 +117,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.options = ["Cuisine", "Borough", "Area"]
 
         self.temp = ""
+        self.trackResults = 0
     
         self.vars = [None] * 3
         self.labels = [None] * 3
@@ -125,6 +126,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.result_labels = [None] * 3
         self.tempFields = [None] * 3
         self.viewButtons = [None] * 3
+        self.placesLabels = [None] * 3
     
         for i in range(3):
             self.vars[i] = StringVar()
@@ -134,7 +136,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.dropdowns[i] = customtkinter.CTkOptionMenu(self,variable = self.vars[i],values = self.parameters[i],height = 35, width = 105)
             
             self.viewButtons[i] = customtkinter.CTkButton(self, text = "View", height = 30, width = 100, command = self.showLoading)
-            
+            self.placesLabels[i] = customtkinter.CTkLabel(self, text = "")
             
             self.tempFields[i] = ""
             self.labels[i].place(x = self.increment, y = 55)
@@ -176,7 +178,13 @@ class RAMSEYFrame2(customtkinter.CTk):
     
     # Method to fetch top 3 places based on user selection
     def fetch_top_places(self,*args):
-        # Get the selected options   
+       #Removes the results on every new run of this method and makes sure that no results get overwritten
+        for i in range(self.trackResults):
+            self.placesLabels[i].place_forget()
+            self.viewButtons[i].place_forget()
+            self.result_labels[i].place_forget()
+            
+         # Get the selected options      
         cuisine = self.dropdowns[0].get()
         borough = self.dropdowns[1].get()
         area = self.dropdowns[2].get()
@@ -192,13 +200,15 @@ class RAMSEYFrame2(customtkinter.CTk):
 
             # Display the top 3 places in the GUI
                 self.increment = 160
+                
                 for i, place in enumerate(top_places):
+                    self.trackResults = i + 1
                     if 'photos' in place:
                         photo_reference = place['photos'][0]['photo_reference']  
                         tempPhoto = PIL.Image.open(requests.get(f"https://maps.googleapis.com/maps/api/place/photo?photoreference={photo_reference}&key={self.api_key}&maxwidth={400}&maxheight={400}", stream = True).raw)
                         placesPhoto = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
-                        placesLabel = customtkinter.CTkLabel(self,image = placesPhoto, text = "")
-                        placesLabel.place(x = self.increment - 70, y = 150)
+                        self.placesLabels[i].configure(image = placesPhoto)
+                        self.placesLabels[i].place(x = self.increment - 70, y = 150)
 
                         
                         
@@ -209,7 +219,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                     
                     self.result_labels[i].configure(text=place_name)
                     self.viewButtons[i].place(x = self.increment, y = 450)
-                    self.result_labels[i].place(x=self.increment, y=400)
+                    self.result_labels[i].place(x=self.increment, y=385)
                     self.increment += 280
             
                 
