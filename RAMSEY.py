@@ -285,7 +285,7 @@ class RAMSEYFrame3(customtkinter.CTk):
             self.loadingReminder.configure(text = "Results Loaded!") 
             self.loadingReminder.place(x = 395, y = 350)
             self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.showResults, text = "Proceed!", font = ('Comic Sans', 18))
-            self.button.place(x = 423, y = 500)
+            self.button.place(x = 423, y = 450)
 
     def showResults(self):
         self.destroy()
