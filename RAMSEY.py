@@ -58,7 +58,7 @@ class RAMSEYFrame1(customtkinter.CTk):
     
     #General text wrapping solution
     @staticmethod
-    def textWrapping(randomString, length, enableSpecifiedLimit, specifiedLimit): #Specified limit is used to check if the text is too long (put 'False' and '0' for those fields there is no specific limit needed)
+    def textWrapping(randomString, length, enableSpecifiedLimit, specifiedLimit): #Specified limit is used to check if the text is too long (put 'False' and '0' for those fields if there is no specific limit needed)
         wrappedString = ""
         stringArray = randomString.split()
         temp = 0
