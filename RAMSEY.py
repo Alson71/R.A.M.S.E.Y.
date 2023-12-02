@@ -260,8 +260,8 @@ class RAMSEYFrame3(customtkinter.CTk):
 
         self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
         self.loadingReminder.place(x= 300, y=350)
-        self.bar = Progressbar(self, style = 'green.Horizontal.TProgressbar', orient = 'horizontal', mode = 'indeterminate', length = 900)
-        self.bar.place(x = 400, y = 800)
+        self.bar = customtkinter.CTkProgressBar(self, orientation = 'horizontal', mode = 'indeterminate', width = 500, height = 50)
+        self.bar.place(x = 250, y = 450)
        
         self.update()
         threading.Thread(target=self.loadingAnimation).start()
@@ -270,14 +270,15 @@ class RAMSEYFrame3(customtkinter.CTk):
 
     def loadingAnimation(self):
         
-        for i in range(800):  
-           self.bar['value']+=1
+        for i in range(400):  
            self.update_idletasks()
-           if i % 50 == 0:
+           self.bar.step()
+           if i % 20 == 0:
                self.animationIndex += 1
                self.loadingReminder.configure(text = self.animations[self.animationIndex % len(self.animations)])
            sleep(0.01)
         else:
+            self.bar.destroy()
             self.loadingReminder.configure(text = "Results Loaded!") 
             self.loadingReminder.place(x = 395, y = 350)
             self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.showResults, text = "Proceed!", font = ('Comic Sans', 18))
