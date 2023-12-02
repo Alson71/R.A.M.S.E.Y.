@@ -65,7 +65,7 @@ class RAMSEYFrame1(customtkinter.CTk):
         cumulativeCounter = 0
         for i in range(len(stringArray)):
             if enableSpecifiedLimit:
-                if cumulativeCounter > specifiedLimit: #Place title is too long
+                if cumulativeCounter > specifiedLimit: 
                     break
             
             cumulativeCounter += len(stringArray[i]) + 1
