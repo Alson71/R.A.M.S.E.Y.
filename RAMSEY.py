@@ -5,6 +5,7 @@ import requests
 from googlemaps import Client 
 from tkinter.ttk import *
 from time import sleep 
+import threading
 
 #The first window
 class RAMSEYFrame1(customtkinter.CTk):
@@ -129,8 +130,8 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.dropdowns[2].configure(state = "disabled")
 
        
-        # Initialize Google Maps API client with your API key
-        self.api_key = 'AIzaSyAK1ms7Rl6vOVsZifEZPvCAgjT_ivmJGUY'  # Replace with your actual Google Places API key
+        #Google Maps API Key
+        self.api_key = 'AIzaSyAK1ms7Rl6vOVsZifEZPvCAgjT_ivmJGUY'  
         self.gmaps = Client(key=self.api_key)
 
             
@@ -148,7 +149,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.dropdowns[2].configure(state = "normal")
                 
     def showLoading(self):
-        self.fetch_top_places()  # Call the method to fetch top places
+        self.fetch_top_places()  
         self.destroy()
         loadingFrame = RAMSEYFrame3()
         loadingFrame.mainloop()
@@ -205,23 +206,23 @@ class RAMSEYFrame2(customtkinter.CTk):
         for i in range(3):
             self.tempFields[i] = self.dropdowns[i].get()
    
-   #General text wrapping solution to make sure 
+   #General text wrapping solution
     def textWrapping(self, randomString, length, enableSpecifiedLimit, specifiedLimit): #Specified limit is used to check if the text is too long (put 'False' and '0' for those fields there is no specific limit needed)
         wrappedString = ""
         stringArray = randomString.split()
         temp = 0
         cumulativeCounter = 0
-        for word in stringArray:
+        for i in range(len(stringArray)):
             if enableSpecifiedLimit:
                 if cumulativeCounter > specifiedLimit: #Place title is too long
                     break
             
-            cumulativeCounter += len(word) + 1
-            temp += len(word) + 1  
+            cumulativeCounter += len(stringArray[i]) + 1
+            temp += len(stringArray[i]) + 1  
             if temp >= length:
                 wrappedString += "\n"
-                temp = len(word) + 1 
-            wrappedString += word + " "
+                temp = len(stringArray[i]) + 1 
+            wrappedString += stringArray[i] + " "
         return wrappedString
             
     
@@ -259,11 +260,11 @@ class RAMSEYFrame3(customtkinter.CTk):
 
         self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
         self.loadingReminder.place(x= 300, y=350)
-
         self.bar = Progressbar(self, style = 'green.Horizontal.TProgressbar', orient = 'horizontal', mode = 'indeterminate', length = 900)
         self.bar.place(x = 400, y = 800)
+       
         self.update()
-        self.loadingAnimation()
+        threading.Thread(target=self.loadingAnimation).start()
         
 
 
@@ -274,20 +275,23 @@ class RAMSEYFrame3(customtkinter.CTk):
            self.update_idletasks()
            if i % 50 == 0:
                self.animationIndex += 1
-               new_text = self.animations[self.animationIndex % len(self.animations)]
-               self.loadingReminder.configure(width=len(new_text), text = new_text )
+               self.loadingReminder.configure(text = self.animations[self.animationIndex % len(self.animations)])
            sleep(0.01)
-        
-        self.loadingReminder.configure(text = "Results Loaded!") 
-        self.loadingReminder.place(x = 395, y = 350)
-        self.bar.destroy()
-        self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.showResults, text = "Proceed!", font = ('Comic Sans', 18))
-        self.button.place(x = 423, y = 500)
+        else:
+            self.loadingReminder.configure(text = "Results Loaded!") 
+            self.loadingReminder.place(x = 395, y = 350)
+            self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.showResults, text = "Proceed!", font = ('Comic Sans', 18))
+            self.button.place(x = 423, y = 500)
 
     def showResults(self):
         self.destroy()
         resultsFrame = RAMSEYFrame4()
-        resultsFrame.mainloop()    
+        resultsFrame.mainloop()
+    
+    
+    
+        
+        
     
 class RAMSEYFrame4(customtkinter.CTk):
 
