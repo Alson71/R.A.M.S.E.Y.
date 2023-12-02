@@ -55,6 +55,26 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.destroy()
         ramseyFrame2 = RAMSEYFrame2()
         ramseyFrame2.mainloop()
+    
+    #General text wrapping solution
+    @staticmethod
+    def textWrapping(randomString, length, enableSpecifiedLimit, specifiedLimit): #Specified limit is used to check if the text is too long (put 'False' and '0' for those fields there is no specific limit needed)
+        wrappedString = ""
+        stringArray = randomString.split()
+        temp = 0
+        cumulativeCounter = 0
+        for i in range(len(stringArray)):
+            if enableSpecifiedLimit:
+                if cumulativeCounter > specifiedLimit: #Place title is too long
+                    break
+            
+            cumulativeCounter += len(stringArray[i]) + 1
+            temp += len(stringArray[i]) + 1  
+            if temp >= length:
+                wrappedString += "\n"
+                temp = len(stringArray[i]) + 1 
+            wrappedString += stringArray[i] + " "
+        return wrappedString
         
 #The second window   
 class RAMSEYFrame2(customtkinter.CTk):
@@ -193,8 +213,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                     place_name = place['name']
                     name = place_name
                     if(len(place_name) >= 17):
-                        place_name = self.textWrapping(name,17,True,34)
-                    
+                        place_name = RAMSEYFrame1.textWrapping(name,17,True,34)
                     
                     self.result_labels[i].configure(text=place_name)
                     self.viewButtons[i].place(x = self.increment, y = 450)
@@ -206,24 +225,8 @@ class RAMSEYFrame2(customtkinter.CTk):
         for i in range(3):
             self.tempFields[i] = self.dropdowns[i].get()
    
-   #General text wrapping solution
-    def textWrapping(self, randomString, length, enableSpecifiedLimit, specifiedLimit): #Specified limit is used to check if the text is too long (put 'False' and '0' for those fields there is no specific limit needed)
-        wrappedString = ""
-        stringArray = randomString.split()
-        temp = 0
-        cumulativeCounter = 0
-        for i in range(len(stringArray)):
-            if enableSpecifiedLimit:
-                if cumulativeCounter > specifiedLimit: #Place title is too long
-                    break
-            
-            cumulativeCounter += len(stringArray[i]) + 1
-            temp += len(stringArray[i]) + 1  
-            if temp >= length:
-                wrappedString += "\n"
-                temp = len(stringArray[i]) + 1 
-            wrappedString += stringArray[i] + " "
-        return wrappedString
+   
+    
             
     
 #Loading Screen (3rd Frame)       
@@ -287,13 +290,9 @@ class RAMSEYFrame3(customtkinter.CTk):
     def showResults(self):
         self.destroy()
         resultsFrame = RAMSEYFrame4()
-        resultsFrame.mainloop()
-    
-    
-    
+        resultsFrame.mainloop()        
         
-        
-    
+#Class that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTk):
 
     def init(self,*args,**kwargs):
