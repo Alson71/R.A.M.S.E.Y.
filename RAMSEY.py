@@ -6,6 +6,7 @@ from googlemaps import Client
 from tkinter.ttk import *
 from time import sleep 
 import threading
+from io import BytesIO
 
 #The first window
 class RAMSEYFrame1(customtkinter.CTk):
@@ -262,7 +263,9 @@ class RAMSEYFrame3(customtkinter.CTk):
         resizeImage = customtkinter.CTkImage(dark_image = loadingImage, size = (200,200))
         picture = customtkinter.CTkLabel(self, image = resizeImage, text = "")
         picture.place(x = 400, y = 125)
-
+        
+       
+        
         self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
         self.loadingReminder.place(x= 300, y=350)
         self.bar = customtkinter.CTkProgressBar(self, orientation = 'horizontal', mode = 'indeterminate', width = 500, height = 50)
@@ -286,9 +289,43 @@ class RAMSEYFrame3(customtkinter.CTk):
             self.bar.destroy()
             self.loadingReminder.configure(text = "Results Loaded!") 
             self.loadingReminder.place(x = 395, y = 350)
-            self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.showResults, text = "Proceed!", font = ('Comic Sans', 18))
-            self.button.place(x = 423, y = 450)
+            
+            threading.Thread(target=self.loadingScreenGif).start()
+            self.after(3000,self.showResults)
+    def loadingScreenGif(self):
+        gif_url = "https://www.icegif.com/wp-content/uploads/smiley-face-icegif-3.gif"  
 
+
+        response = requests.get(gif_url)
+
+
+        if response.status_code == 200:
+    
+            gif = PIL.Image.open(BytesIO(response.content))
+
+   
+            gif_list = []
+            try:
+                while True:
+                    gif.seek(len(gif_list))
+                    gif_list.append(customtkinter.CTkImage(dark_image = gif.copy(), size = (167, 120)))
+            except EOFError:
+                pass
+
+    
+            animated_label = customtkinter.CTkLabel(self, text = "")
+            animated_label.place(x = 425, y = 425)
+
+    
+            def update_label(index):
+                frame = gif_list[index]
+                animated_label.configure(image=frame)
+                self.after(100, update_label, (index + 1) % len(gif_list))
+
+    # Start displaying frames
+            update_label(0)
+            
+            
     def showResults(self):
         self.destroy()
         resultsFrame = RAMSEYFrame4()
