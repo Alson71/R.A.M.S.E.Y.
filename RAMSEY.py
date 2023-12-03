@@ -50,12 +50,14 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.closeWindow, text = "Feelin' Hungry?", font = ('Comic Sans', 18))
         self.button.place(x = 420, y = 510)
         
+        self.ramseyFrame2 = None
+        
         
         
     def closeWindow(self):
         self.destroy()
-        ramseyFrame2 = RAMSEYFrame2()
-        ramseyFrame2.mainloop()
+        self.ramseyFrame2 = RAMSEYFrame2()
+        self.ramseyFrame2.mainloop()
     
     #General text wrapping solution
     @staticmethod
@@ -82,9 +84,6 @@ class RAMSEYFrame2(customtkinter.CTk):
     
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)   
-
-
-        
         w = 1000
         h = 600
         screenWidth = self.winfo_screenwidth()
@@ -128,6 +127,10 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.tempFields = [None] * 3
         self.viewButtons = [None] * 3
         self.placesLabels = [None] * 3
+        
+        self.ramseyFrame3 = None
+        self.ramseyFrame4 = None
+        
     
         for i in range(3):
             self.vars[i] = StringVar()
@@ -136,7 +139,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.labels[i] = customtkinter.CTkLabel(self,fg_color = "transparent", height = 35, width = 105,text = self.options[i])
             self.dropdowns[i] = customtkinter.CTkOptionMenu(self,variable = self.vars[i],values = self.parameters[i],height = 35, width = 105)
             
-            self.viewButtons[i] = customtkinter.CTkButton(self, text = "View", height = 30, width = 100, command = self.showLoading)
+            self.viewButtons[i] = customtkinter.CTkButton(self, text = "View", height = 30, width = 100, command = self.openResult)
             self.placesLabels[i] = customtkinter.CTkLabel(self, text = "")
             
             self.tempFields[i] = ""
@@ -170,13 +173,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                     self.dropdowns[2].configure(values = self.areas[i])
                     self.temp = self.parameters[1][i]
             self.dropdowns[2].configure(state = "normal")
-                
-    def showLoading(self):
-        self.fetch_top_places()  
-        self.destroy()
-        loadingFrame = RAMSEYFrame3()
-        loadingFrame.mainloop()
-    
+                  
     # Method to fetch top 3 places based on user selection
     def fetch_top_places(self,*args):
        #Removes the results on every new run of this method and makes sure that no results get overwritten
@@ -210,9 +207,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                         placesPhoto = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
                         self.placesLabels[i].configure(image = placesPhoto)
                         self.placesLabels[i].place(x = self.increment - 70, y = 150)
-
-                        
-                        
+     
                     place_name = place['name']
                     name = place_name
                     if(len(place_name) >= 17):
@@ -222,25 +217,32 @@ class RAMSEYFrame2(customtkinter.CTk):
                     self.viewButtons[i].place(x = self.increment, y = 450)
                     self.result_labels[i].place(x=self.increment, y=385)
                     self.increment += 280
-            
-                
-                
+                     
         for i in range(3):
             self.tempFields[i] = self.dropdowns[i].get()
-   
-   
     
-            
+    def openResult(self):
+        self.withdraw()
+        self.openTopLevel(0)
+        self.after(11000,lambda: self.openTopLevel(1))
+        
     
+    def openTopLevel(self, arg): # "0" is for Ramsey Frame 3 and "1" is for Ramsey Frame 4
+        if arg == 0 and self.ramseyFrame3 == None or not self.ramseyFrame3.winfo_exists():
+            self.ramseyFrame3 = RAMSEYFrame3(self)
+        elif arg == 1 and self.ramseyFrame4 == None or not self.ramseyFrame4.winfo_exists():
+            self.ramseyFrame3.destroy()
+            self.ramseyFrame4 = RAMSEYFrame4(self,self)
+       
+    
+        
+        
 #Loading Screen (3rd Frame)       
-class RAMSEYFrame3(customtkinter.CTk):
+class RAMSEYFrame3(customtkinter.CTkToplevel):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)   
         
-        self.isAnimation = False
-        self.isRunning = False
         self.animationIndex = 0
-        
         self.animations = ["Working hard for your results", "Working hard for your results.", "Working hard for your results..", "Working hard for your results..."]
         
         w = 1000
@@ -254,10 +256,6 @@ class RAMSEYFrame3(customtkinter.CTk):
         self.title("RAMSEY")
         self.resizable("False","False")
         self.wm_protocol("WM_DELETE_WINDOW",exit)
-
-        theme = Style()
-        theme.theme_use('winnative')
-        theme.configure('green.Horizontal.TProgressbar',background = 'red', thickness = 40 )
 
         loadingImage = PIL.Image.open(requests.get('https://cdn.openart.ai/uploads/image_Qz5b9Umf_1677711675034_512.webp', stream =True).raw)
         resizeImage = customtkinter.CTkImage(dark_image = loadingImage, size = (200,200))
@@ -285,25 +283,21 @@ class RAMSEYFrame3(customtkinter.CTk):
                self.animationIndex += 1
                self.loadingReminder.configure(text = self.animations[self.animationIndex % len(self.animations)])
            sleep(0.01)
-        else:
-            self.bar.destroy()
-            self.loadingReminder.configure(text = "Results Loaded!") 
-            self.loadingReminder.place(x = 395, y = 350)
+        
+        self.bar.destroy()
+        self.loadingReminder.configure(text = "Results Loaded!") 
+        self.loadingReminder.place(x = 395, y = 350)
             
-            threading.Thread(target=self.loadingScreenGif).start()
-            self.after(3000,self.showResults)
+        threading.Thread(target=self.loadingScreenGif).start()
+            
+            
+            
     def loadingScreenGif(self):
         gif_url = "https://www.icegif.com/wp-content/uploads/smiley-face-icegif-3.gif"  
-
-
         response = requests.get(gif_url)
-
-
+        
         if response.status_code == 200:
-    
             gif = PIL.Image.open(BytesIO(response.content))
-
-   
             gif_list = []
             try:
                 while True:
@@ -311,31 +305,22 @@ class RAMSEYFrame3(customtkinter.CTk):
                     gif_list.append(customtkinter.CTkImage(dark_image = gif.copy(), size = (167, 120)))
             except EOFError:
                 pass
-
-    
+            
             animated_label = customtkinter.CTkLabel(self, text = "")
             animated_label.place(x = 425, y = 425)
-
-    
+            
             def update_label(index):
                 frame = gif_list[index]
                 animated_label.configure(image=frame)
                 self.after(100, update_label, (index + 1) % len(gif_list))
-
     # Start displaying frames
-            update_label(0)
-            
-            
-    def showResults(self):
-        self.destroy()
-        resultsFrame = RAMSEYFrame4()
-        resultsFrame.mainloop()        
+            update_label(0)      
         
 #Class that will show the result of any restaurant    
-class RAMSEYFrame4(customtkinter.CTk):
+class RAMSEYFrame4(customtkinter.CTkToplevel):
 
-    def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)
+    def __init__(self,master,ramseyFrame2,*args,**kwargs):
+        super().__init__(master,*args,**kwargs)
 
         w = 1000
         h = 600
@@ -347,8 +332,16 @@ class RAMSEYFrame4(customtkinter.CTk):
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
-        self.wm_protocol("WM_DELETE_WINDOW",exit)        
-       
+        self.wm_protocol("WM_DELETE_WINDOW",exit)    
+        
+        self.backButton = customtkinter.CTkButton(self, width = 100, height = 30, text = "Back", command = self.backToMenu)
+        self.backButton.place(x = 50, y = 25)    
+        
+    def backToMenu(self):
+        self.destroy()
+        self.master.deiconify()
+   
+          
 if __name__ == "__main__":
    ramseyFrame1 = RAMSEYFrame1()
    ramseyFrame1.mainloop()
