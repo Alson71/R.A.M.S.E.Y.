@@ -50,10 +50,6 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.closeWindow, text = "Feelin' Hungry?", font = ('Comic Sans', 18))
         self.button.place(x = 420, y = 510)
         
-        ramseyFrame2 = None
-        
-        
-        
     def closeWindow(self):
         self.destroy()
         ramseyFrame2 = RAMSEYFrame2()
