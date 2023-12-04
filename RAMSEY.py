@@ -176,7 +176,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                   
     # Method to fetch top 3 places based on user selection
     def fetch_top_places(self,*args):
-        #If all of the values stay the same
+        #If all the values in the dropdown boxes stay the same even when clicking on a dropdown box
         if self.tempFields[0] == self.dropdowns[0].get() and self.tempFields[1] == self.dropdowns[1].get() and self.tempFields[2] == self.dropdowns[2].get():
             return
         
