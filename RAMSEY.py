@@ -50,14 +50,14 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.closeWindow, text = "Feelin' Hungry?", font = ('Comic Sans', 18))
         self.button.place(x = 420, y = 510)
         
-        self.ramseyFrame2 = None
+        ramseyFrame2 = None
         
         
         
     def closeWindow(self):
         self.destroy()
-        self.ramseyFrame2 = RAMSEYFrame2()
-        self.ramseyFrame2.mainloop()
+        ramseyFrame2 = RAMSEYFrame2()
+        ramseyFrame2.mainloop()
     
     #General text wrapping solution
     @staticmethod
@@ -129,7 +129,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.placesLabels = [None] * 3
         
         self.ramseyFrame3 = None
-        self.ramseyFrame4 = None
+        self.ramseyFrame4 = [None] * 3
         
     
         for i in range(3):
@@ -139,7 +139,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.labels[i] = customtkinter.CTkLabel(self,fg_color = "transparent", height = 35, width = 105,text = self.options[i])
             self.dropdowns[i] = customtkinter.CTkOptionMenu(self,variable = self.vars[i],values = self.parameters[i],height = 35, width = 105)
             
-            self.viewButtons[i] = customtkinter.CTkButton(self, text = "View", height = 30, width = 100, command = self.openResult)
+            self.viewButtons[i] = customtkinter.CTkButton(self, text = "View", height = 30, width = 100, command = lambda:  self.openResult(i))
             self.placesLabels[i] = customtkinter.CTkLabel(self, text = "")
             
             self.tempFields[i] = ""
@@ -176,11 +176,16 @@ class RAMSEYFrame2(customtkinter.CTk):
                   
     # Method to fetch top 3 places based on user selection
     def fetch_top_places(self,*args):
+        #If all of the values stay the same
+        if self.tempFields[0] == self.dropdowns[0].get() and self.tempFields[1] == self.dropdowns[1].get() and self.tempFields[2] == self.dropdowns[2].get():
+            return
+        
        #Removes the results on every new run of this method and makes sure that no results get overwritten
         for i in range(self.trackResults):
             self.placesLabels[i].place_forget()
             self.viewButtons[i].place_forget()
             self.result_labels[i].place_forget()
+            self.ramseyFrame4[i].destroy()
             
          # Get the selected options      
         cuisine = self.dropdowns[0].get()
@@ -198,7 +203,6 @@ class RAMSEYFrame2(customtkinter.CTk):
 
             # Display the top 3 places in the GUI
                 self.increment = 160
-                
                 for i, place in enumerate(top_places):
                     self.trackResults = i + 1
                     if 'photos' in place:
@@ -213,26 +217,29 @@ class RAMSEYFrame2(customtkinter.CTk):
                     if(len(place_name) >= 17):
                         place_name = RAMSEYFrame1.textWrapping(name,17,True,34)
                     
+                    self.ramseyFrame4[i] = RAMSEYFrame4(self,self)
+                    self.ramseyFrame4[i].withdraw()
+                    
                     self.result_labels[i].configure(text=place_name)
                     self.viewButtons[i].place(x = self.increment, y = 450)
                     self.result_labels[i].place(x=self.increment, y=385)
                     self.increment += 280
-                     
+                           
         for i in range(3):
             self.tempFields[i] = self.dropdowns[i].get()
     
-    def openResult(self):
+    def openResult(self, arg):
         self.withdraw()
-        self.openTopLevel(0)
-        self.after(11000,lambda: self.openTopLevel(1))
+        self.openTopLevel(0,0)
+        self.after(11000,lambda: self.openTopLevel(1,arg))
         
     
-    def openTopLevel(self, arg): # "0" is for Ramsey Frame 3 and "1" is for Ramsey Frame 4
+    def openTopLevel(self, arg, arg2): # "0" is for Ramsey Frame 3 and "1" is for Ramsey Frame 4
         if arg == 0 and self.ramseyFrame3 == None or not self.ramseyFrame3.winfo_exists():
             self.ramseyFrame3 = RAMSEYFrame3(self)
-        elif arg == 1 and self.ramseyFrame4 == None or not self.ramseyFrame4.winfo_exists():
+        elif arg == 1:
             self.ramseyFrame3.destroy()
-            self.ramseyFrame4 = RAMSEYFrame4(self,self)
+            self.ramseyFrame4[arg2].deiconify()
        
     
         
@@ -338,7 +345,7 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.backButton.place(x = 50, y = 25)    
         
     def backToMenu(self):
-        self.destroy()
+        self.withdraw()
         self.master.deiconify()
    
           
