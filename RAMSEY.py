@@ -7,6 +7,8 @@ from tkinter.ttk import *
 from time import sleep 
 import threading
 from io import BytesIO
+import webbrowser
+from datetime import date
 
 #The first window
 class RAMSEYFrame1(customtkinter.CTk):
@@ -50,6 +52,7 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.button = customtkinter.CTkButton(self, height = 70, width = 150, command = self.closeWindow, text = "Feelin' Hungry?", font = ('Comic Sans', 18))
         self.button.place(x = 420, y = 510)
         
+     
     def closeWindow(self):
         self.destroy()
         ramseyFrame2 = RAMSEYFrame2()
@@ -63,15 +66,16 @@ class RAMSEYFrame1(customtkinter.CTk):
         temp = 0
         cumulativeCounter = 0
         for i in range(len(stringArray)):
-            if enableSpecifiedLimit:
-                if cumulativeCounter > specifiedLimit: 
-                    break
             
             cumulativeCounter += len(stringArray[i]) + 1
             temp += len(stringArray[i]) + 1  
             if temp >= length:
                 wrappedString += "\n"
-                temp = len(stringArray[i]) + 1 
+                temp = len(stringArray[i]) + 1
+            if enableSpecifiedLimit:
+                    if cumulativeCounter > specifiedLimit:
+                        wrappedString += stringArray[i]
+                        break    
             wrappedString += stringArray[i] + " "
         return wrappedString
         
@@ -114,6 +118,7 @@ class RAMSEYFrame2(customtkinter.CTk):
 
         self.temp = ""
         self.trackResults = 0
+        self.photo = None
     
         self.vars = [None] * 3
         self.labels = [None] * 3
@@ -127,6 +132,10 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.ramseyFrame3 = None
         self.ramseyFrame4 = [None] * 3
         
+        self.reviews = ["",""]
+        self.menuURL = ""
+        
+        self.today = date.today()
     
         for i in range(3):
             self.vars[i] = StringVar()
@@ -172,7 +181,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                   
     # Method to fetch top 3 places based on user selection
     def fetch_top_places(self,*args):
-        #If all the values in the dropdown boxes stay the same even when clicking on a dropdown box
+        #If all of the values stay the same
         if self.tempFields[0] == self.dropdowns[0].get() and self.tempFields[1] == self.dropdowns[1].get() and self.tempFields[2] == self.dropdowns[2].get():
             return
         
@@ -192,6 +201,10 @@ class RAMSEYFrame2(customtkinter.CTk):
         if cuisine != "Select" and borough != "Select" and area != "Select" and self.temp == borough:
             if self.tempFields[0] != self.dropdowns[0].get() or self.tempFields[1] or self.dropdowns[1].get() or self.tempFields[2] != self.dropdowns[2].get():
                 
+                #To prevent the user from causing errors while parsing data
+                for l in range(3):
+                    self.dropdowns[l].configure(state = "disabled")  
+                    
                 places_result = self.gmaps.places(query=f"{cuisine} restaurant in {area}, {borough}")
 
             # Get the top 3 places from the API response
@@ -204,24 +217,67 @@ class RAMSEYFrame2(customtkinter.CTk):
                     if 'photos' in place:
                         photo_reference = place['photos'][0]['photo_reference']  
                         tempPhoto = PIL.Image.open(requests.get(f"https://maps.googleapis.com/maps/api/place/photo?photoreference={photo_reference}&key={self.api_key}&maxwidth={400}&maxheight={400}", stream = True).raw)
-                        placesPhoto = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
-                        self.placesLabels[i].configure(image = placesPhoto)
+                        self.photo = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
+                        self.placesLabels[i].configure(image = self.photo)
                         self.placesLabels[i].place(x = self.increment - 70, y = 150)
-     
+                    
+                    
+                    
+                    place_details = self.gmaps.place(place_id=place['place_id'], fields=['website','formatted_phone_number','reviews','opening_hours','url'])
+                    if 'result' in place_details and 'website' in place_details['result']:
+                        website = place_details['result']['website']
+                    else: website = ""
+                    
+                    if 'result' in place_details and 'formatted_phone_number'in place_details['result']:
+                        phoneNumber = place_details['result']['formatted_phone_number']
+                    else: phoneNumber = "Not Available"
+                    
+                    if 'result' in place_details and 'reviews' in place_details['result']:
+                        reviews = place_details['result']['reviews'][:2]
+                        count = 0
+                        for review in reviews:
+                             self.reviews[count] = review['text']
+                             count += 1
+                    else:
+                        self.reviews[0] = ""
+                        self.reviews[1] = "" 
+                        
+                    if 'result' in place_details and 'opening_hours' in place_details['result']:
+                        weekday_text = place_details['result']['opening_hours'].get('weekday_text',[])
+                        for temp in weekday_text:
+                            hoursList = temp.split()
+                            if self.getDate(hoursList[0]) == self.today.weekday():
+                                hours = temp
+                                break
+                    else:
+                        hours = "Not Available"
+                        
+                    if 'result' in place_details and 'url' in place_details['result']:
+                        request = requests.get(website + "menu") #Checking if the website already has a built in menu
+                        if request.status_code == 200:
+                            self.menuURL = website + "/menu"         
+                        else: self.menuURL = place_details['result']['url']   
+                         
                     place_name = place['name']
+                    address = place['formatted_address']
+                    rating = place['rating']
+                    
                     name = place_name
                     if(len(place_name) >= 17):
                         place_name = RAMSEYFrame1.textWrapping(name,17,True,34)
-                    
-                    self.ramseyFrame4[i] = RAMSEYFrame4(self,self)
+                
+                    self.ramseyFrame4[i] = RAMSEYFrame4(self,self,name,website,hours,address,rating,phoneNumber,self.reviews[0],self.reviews[1],self.photo,self.menuURL)
                     self.ramseyFrame4[i].withdraw()
                     
                     self.result_labels[i].configure(text=place_name)
+                    self.viewButtons[i].configure(command=lambda index=i: self.openResult(index))
+                    
                     self.viewButtons[i].place(x = self.increment, y = 450)
                     self.result_labels[i].place(x=self.increment, y=385)
                     self.increment += 280
                            
         for i in range(3):
+            self.dropdowns[i].configure(state = "normal")
             self.tempFields[i] = self.dropdowns[i].get()
     
     def openResult(self, arg):
@@ -236,7 +292,23 @@ class RAMSEYFrame2(customtkinter.CTk):
         elif arg == 1:
             self.ramseyFrame3.destroy()
             self.ramseyFrame4[arg2].deiconify()
-       
+    
+    #To be used to iterate the hours list and find the correct date     
+    def getDate(self,day):
+        if day == "Monday:":
+            return 0  
+        elif day == "Tuesday:":
+            return 1 
+        elif day == "Wednesday:":
+            return 2 
+        elif day == "Thursday:":
+            return 3 
+        elif day == "Friday:":
+            return 4 
+        elif day == "Saturday:":
+            return 5 
+        else :
+            return 6 
     
         
         
@@ -265,8 +337,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
         picture = customtkinter.CTkLabel(self, image = resizeImage, text = "")
         picture.place(x = 400, y = 125)
         
-       
-        
+
         self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
         self.loadingReminder.place(x= 300, y=350)
         self.bar = customtkinter.CTkProgressBar(self, orientation = 'horizontal', mode = 'indeterminate', width = 500, height = 50)
@@ -279,7 +350,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
 
     def loadingAnimation(self):
         
-        for i in range(400):  
+        for i in range(300):  
            self.update_idletasks()
            self.bar.step()
            if i % 20 == 0:
@@ -322,8 +393,8 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
 #Class that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTkToplevel):
 
-    def __init__(self,master,ramseyFrame2,*args,**kwargs):
-        super().__init__(master,*args,**kwargs)
+    def __init__(self,master,ramseyFrame2,name,websiteURL,hours,address,rating,phoneNumber,review1,review2,photo,menuURL,*args,**kwargs):
+        super().__init__(*args,**kwargs)
 
         w = 1000
         h = 600
@@ -338,7 +409,91 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.wm_protocol("WM_DELETE_WINDOW",exit)    
         
         self.backButton = customtkinter.CTkButton(self, width = 100, height = 30, text = "Back", command = self.backToMenu)
-        self.backButton.place(x = 50, y = 25)    
+        self.backButton.place(x = 50, y = 25)
+        
+        self.websiteButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Website", command = lambda: webbrowser.open_new(websiteURL))
+        self.websiteButton.place(x = 325, y = 200)
+        self.menuButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Menu", command = lambda: webbrowser.open_new(menuURL))
+        self.menuButton.place(x = 535, y = 200)
+        
+        self.addressLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Address:", fg_color = "black")
+        self.addressLabel.place(x = 70, y = 325)
+        
+        text = address
+        if len(address) >= 18:    
+            text = RAMSEYFrame1.textWrapping(address,18,False,0)
+            
+        self.address = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
+        self.address.place(x = 60, y = 375)
+        
+        self.hours = customtkinter.CTkLabel(self, text = str(hours), width = 100, height = 50, font = ('Comic Sans', 20))
+        self.hours.place(x = 340, y = 230)
+        
+        self.ratingLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Rating:", fg_color = "black")
+        self.ratingLabel.place(x = 420, y = 325)
+        
+        self.rating = customtkinter.CTkLabel(self, text = str(rating) + " out of 5.0",width = 100, height = 50, font = ('Comic Sans', 20))
+        self.rating.place(x = 410, y = 375)
+        
+        self.reviewLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Reviews:", fg_color = "black")
+        self.reviewLabel.place(x = 750, y = 325)
+        
+        
+        self.phoneNumber = customtkinter.CTkLabel(self, text = "Phone Number: " + str(phoneNumber), width = 100, height = 30, font = ('Comic Sans', 20))
+        self.phoneNumber.place(x = 340, y = 280)
+        
+        #Formatting the reviews and limiting them to only 75 characters
+        text = review1
+        if(len(review1) >= 37):
+            text = RAMSEYFrame1.textWrapping(review1,37, True, 125)
+            text = "1. " + text + "..."
+        self.review = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
+        self.review.place(x = 655, y = 375)
+        
+        text = review2
+        if(len(review2) >= 37):
+            text = RAMSEYFrame1.textWrapping(review2,37, True, 125)
+            text = "2. " + text + "..."
+        self.review1 = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
+        self.review1.place(x = 655, y = 480)
+        
+        
+        self.titleOfRes = customtkinter.CTkLabel(self, height = 50, width = 110, font = ('Comic Sans',40), fg_color = "blue", text_color = "turquoise")
+        text = name
+        self.array = name.split()
+        
+        #Text wrapping that accounts for all types of text lengths of the restaurant name
+        if(len(name) >= 10): 
+            text = RAMSEYFrame1.textWrapping(name,10,True,21)
+            lessThanSix = True
+            
+            #Positioning the entire line based off the length of the word for each individual line
+            for i in range(len(self.array)):
+                if len(self.array[i]) > 6:
+                    lessThanSix = False
+                    
+            if not lessThanSix:   
+                self.titleOfRes.place(x = 400, y = 10) 
+            else:
+                self.titleOfRes.place(x = 425, y = 10)
+        elif len(name) < 6:
+            self.titleOfRes.place(x = 425, y = 10)
+        
+        elif len(name) > 6 and len(self.array) == 1: #Adjust the label accordingly if it's only one word and more than 6 letters long
+            increment = (len(name) - 6) * 12
+            self.titleOfRes.place(x = 425 - increment, y = 10)    
+        else:
+            text = RAMSEYFrame1.textWrapping(name,6,False,0)
+            self.titleOfRes.place(x = 425, y = 10)
+            
+        self.titleOfRes.configure(text = text)
+        
+        
+        self.place = customtkinter.CTkLabel(self,image = photo, text = "")
+        self.place.place(x = 700, y = 50)
+        
+          
+        
         
     def backToMenu(self):
         self.withdraw()
