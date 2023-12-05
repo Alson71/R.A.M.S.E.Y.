@@ -390,7 +390,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
     # Start displaying frames
             update_label(0)      
         
-#Class that will show the result of any restaurant    
+#Frame that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTkToplevel):
 
     def __init__(self,master,ramseyFrame2,name,websiteURL,hours,address,rating,phoneNumber,review1,review2,photo,menuURL,*args,**kwargs):
