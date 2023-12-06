@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 import PIL.Image
 import customtkinter
 import requests
@@ -118,7 +119,14 @@ class RAMSEYFrame2(customtkinter.CTk):
 
         self.temp = ""
         self.trackResults = 0
-        self.photo = None
+        self.photo = [None] * 3
+        
+        self.name = ["","",""]
+        self.website = ["","",""]
+        self.hours = ["","",""]
+        self.address = ["","",""]
+        self.rating = ["","",""]
+        self.phoneNumber = ["","",""]
     
         self.vars = [None] * 3
         self.labels = [None] * 3
@@ -132,8 +140,8 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.ramseyFrame3 = None
         self.ramseyFrame4 = [None] * 3
         
-        self.reviews = ["",""]
-        self.menuURL = ""
+        self.reviews = [["",""],["",""],["",""]]
+        self.menuURL = ["","",""]
         
         self.today = date.today()
     
@@ -153,13 +161,14 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.result_labels[i] = customtkinter.CTkLabel(self, bg_color="transparent", height=40, width=100, text="")
             self.increment += 280
 
+        
+    
         self.vars[0].trace("w",self.enableArea)       
         self.vars[1].trace("w", self.enableArea)
-        self.vars[0].trace("w",self.fetch_top_places)
-        self.vars[1].trace("w",self.fetch_top_places)
-        self.vars[2].trace("w",self.fetch_top_places)
+        self.vars[0].trace("w", lambda *args: self.fetch_top_places_threaded(*args))
+        self.vars[1].trace("w", lambda *args: self.fetch_top_places_threaded(*args))
+        self.vars[2].trace("w", lambda *args: self.fetch_top_places_threaded(*args))
         self.dropdowns[2].configure(state = "disabled")
-
        
         #Google Maps API Key
         self.api_key = 'AIzaSyAK1ms7Rl6vOVsZifEZPvCAgjT_ivmJGUY'  
@@ -167,7 +176,9 @@ class RAMSEYFrame2(customtkinter.CTk):
 
             
             
-   
+    def fetch_top_places_threaded(self, *args):
+        threading.Thread(target=self.fetch_top_places, args=args).start()
+        
     def enableArea(self, *args):
         if self.temp != self.dropdowns[1].get() and self.dropdowns[1].get() != "Select" and self.dropdowns[2].cget("state") == "normal":
                 self.vars[2].set("Select")
@@ -184,13 +195,15 @@ class RAMSEYFrame2(customtkinter.CTk):
         #If all of the values stay the same
         if self.tempFields[0] == self.dropdowns[0].get() and self.tempFields[1] == self.dropdowns[1].get() and self.tempFields[2] == self.dropdowns[2].get():
             return
+       
         
        #Removes the results on every new run of this method and makes sure that no results get overwritten
         for i in range(self.trackResults):
             self.placesLabels[i].place_forget()
             self.viewButtons[i].place_forget()
             self.result_labels[i].place_forget()
-            self.ramseyFrame4[i].destroy()
+            if not self.ramseyFrame4[i] == None:
+                self.ramseyFrame4[i].destroy()
             
          # Get the selected options      
         cuisine = self.dropdowns[0].get()
@@ -217,64 +230,63 @@ class RAMSEYFrame2(customtkinter.CTk):
                     if 'photos' in place:
                         photo_reference = place['photos'][0]['photo_reference']  
                         tempPhoto = PIL.Image.open(requests.get(f"https://maps.googleapis.com/maps/api/place/photo?photoreference={photo_reference}&key={self.api_key}&maxwidth={400}&maxheight={400}", stream = True).raw)
-                        self.photo = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
-                        self.placesLabels[i].configure(image = self.photo)
+                        self.photo[i] = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
+                        self.placesLabels[i].configure(image = self.photo[i])
                         self.placesLabels[i].place(x = self.increment - 70, y = 150)
-                        
-                    
-                    
-                    
+                             
                     place_details = self.gmaps.place(place_id=place['place_id'], fields=['website','formatted_phone_number','reviews','opening_hours','url'])
                     if 'result' in place_details and 'website' in place_details['result']:
-                        website = place_details['result']['website']
-                    else: website = ""
-                    
+                        self.website[i] = place_details['result']['website']
+                    else: self.website[i] = ""
                     
                     if 'result' in place_details and 'formatted_phone_number'in place_details['result']:
-                        phoneNumber = place_details['result']['formatted_phone_number']
-                    else: phoneNumber = "Not Available"
+                        self.phoneNumber[i] = place_details['result']['formatted_phone_number']
+                    else: self.phoneNumber[i] = "Not Available"
                     
                     if 'result' in place_details and 'reviews' in place_details['result']:
                         reviews = place_details['result']['reviews'][:2]
                         count = 0
                         for review in reviews:
-                             self.reviews[count] = review['text']
+                             self.reviews[i][count] = review['text']
                              count += 1
                     else:
-                        self.reviews[0] = ""
-                        self.reviews[1] = "" 
+                        self.reviews[i][0] = ""
+                        self.reviews[i][1] = "" 
                         
                     if 'result' in place_details and 'opening_hours' in place_details['result']:
                         weekday_text = place_details['result']['opening_hours'].get('weekday_text',[])
                         for temp in weekday_text:
                             hoursList = temp.split()
                             if self.getDate(hoursList[0]) == self.today.weekday():
-                                hours = temp
+                                self.hours[i] = temp
                                 break
                     else:
-                        hours = "Not Available"
+                        self.hours[i] = "Not Available"
                         
                     if 'result' in place_details and ('url' in place_details['result'] and 'website' in place_details['result']):
-                        request = requests.get(website + "menu") #Checking if the website already has a built in menu
+                        request = requests.get(self.website[i] + "menu") #Checking if the website already has a built in menu
                         if request.status_code == 200:
-                            self.menuURL = website + "/menu"        
-                        else: self.menuURL = place_details['result']['url']   
-                      
+                            self.menuURL[i] = self.website[i] + "menu"        
+                        else: self.menuURL[i] = place_details['result']['url']   
+                       
                     
-                    place_name = place['name']
-                    address = place['formatted_address']
-                    rating = place['rating']
+                    self.name[i] = place['name']
+                    self.address[i] = place['formatted_address']
+                    self.rating[i] = place['rating']
                     
-                    name = place_name
-                    if(len(place_name) >= 17):
-                        place_name = RAMSEYFrame1.textWrapping(name,17,True,34)
+                    name = self.name[i]
+                    if(len(self.name[i]) >= 17):
+                        self.name[i] = RAMSEYFrame1.textWrapping(name,17,True,34)
                 
-                    self.ramseyFrame4[i] = RAMSEYFrame4(self,self,name,website,hours,address,rating,phoneNumber,self.reviews[0],self.reviews[1],self.photo,self.menuURL)
-                    self.ramseyFrame4[i].withdraw()
                     
-                    self.result_labels[i].configure(text=place_name)
-                    self.viewButtons[i].configure(command=lambda index=i: self.openResult(index))
                     
+                    self.result_labels[i].configure(text=self.name[i])
+                    
+                    #Putting all of the data into the button method to be used if the user tries to open a result
+                    self.viewButtons[i].configure(command=lambda i=i, name=self.name[i], website=self.website[i], hours=self.hours[i],
+    address=self.address[i], rating=self.rating[i], phoneNumber=self.phoneNumber[i],
+    review1=self.reviews[i][0], review2=self.reviews[i][1], photo=self.photo[i],
+    menuURL=self.menuURL[i]: self.openResult(i, name, website, hours, address, rating, phoneNumber, review1, review2, photo, menuURL))
                     
                     
                     self.viewButtons[i].place(x = self.increment, y = 450)
@@ -282,24 +294,35 @@ class RAMSEYFrame2(customtkinter.CTk):
                     
                     self.result_labels[i].place(x=self.increment, y=385)
                     self.increment += 280
-                           
-        for i in range(3):
-            self.dropdowns[i].configure(state = "normal")
-            self.viewButtons[i].configure(state = "normal")
-            self.tempFields[i] = self.dropdowns[i].get()
+            
+        #Withdraw is called multiple times because sometimes the window doesn't close properly
+        if self.dropdowns[0].get() != "Select" and self.dropdowns[1].get() != "Select":                     
+            for i in range(3):
+                self.dropdowns[i].configure(state = "normal")
+                self.viewButtons[i].configure(state = "normal")
+                self.tempFields[i] = self.dropdowns[i].get()
     
-    def openResult(self, arg):
+    def openResult(self,arg,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL):
         self.withdraw()
-        self.openTopLevel(0,0)
-        self.after(11000,lambda: self.openTopLevel(1,arg))
+        if self.ramseyFrame4[arg] == None:
+            self.openTopLevel(0,arg,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL)
+        else:
+            self.ramseyFrame3 = RAMSEYFrame3(self)
+             
+        self.after(11000,lambda: self.openTopLevel(1,arg,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL))
         
     
-    def openTopLevel(self, arg, arg2): # "0" is for Ramsey Frame 3 and "1" is for Ramsey Frame 4
+    def openTopLevel(self, arg, arg2,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL): # "0" is for Ramsey Frame 3 and "1" is for Ramsey Frame 4
         if arg == 0 and self.ramseyFrame3 == None or not self.ramseyFrame3.winfo_exists():
             self.ramseyFrame3 = RAMSEYFrame3(self)
+            if self.ramseyFrame4[arg2] == None or not self.ramseyFrame4[arg2].winfo_exists(): 
+                self.ramseyFrame4[arg2] = RAMSEYFrame4(self,self,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL)
+                self.ramseyFrame4[arg2].withdraw()
+                
         elif arg == 1:
             self.ramseyFrame3.destroy()
             self.ramseyFrame4[arg2].deiconify()
+            
     
     #To be used to iterate the hours list and find the correct date     
     def getDate(self,day):
@@ -315,7 +338,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             return 4 
         elif day == "Saturday:":
             return 5 
-        else :
+        else:
             return 6 
     
         
@@ -398,7 +421,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
     # Start displaying frames
             update_label(0)      
         
-#Class that will show the result of any restaurant    
+#Frame that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTkToplevel):
 
     def __init__(self,master,ramseyFrame2,name,websiteURL,hours,address,rating,phoneNumber,review1,review2,photo,menuURL,*args,**kwargs):
@@ -414,18 +437,20 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
-        self.wm_protocol("WM_DELETE_WINDOW",exit)    
+        self.wm_protocol("WM_DELETE_WINDOW",exit) 
+        
+          
         
         self.backButton = customtkinter.CTkButton(self, width = 100, height = 30, text = "Back", command = self.backToMenu)
         self.backButton.place(x = 50, y = 25)
         
-        self.websiteButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Website", command = lambda: webbrowser.open_new(websiteURL))
+        self.websiteButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Website", command = lambda: self.openWebsite(websiteURL))
         self.websiteButton.place(x = 325, y = 200)
         self.menuButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Menu", command = lambda: webbrowser.open_new(menuURL))
         self.menuButton.place(x = 535, y = 200)
         
         self.addressLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Address:", fg_color = "black")
-        self.addressLabel.place(x = 70, y = 325)
+        self.addressLabel.place(x = 70, y = 315)
         
         text = address
         if len(address) >= 18:    
@@ -438,13 +463,16 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.hours.place(x = 340, y = 230)
         
         self.ratingLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Rating:", fg_color = "black")
-        self.ratingLabel.place(x = 420, y = 325)
+        self.ratingLabel.place(x = 420, y = 315)
         
         self.rating = customtkinter.CTkLabel(self, text = str(rating) + " out of 5.0",width = 100, height = 50, font = ('Comic Sans', 20))
-        self.rating.place(x = 410, y = 375)
+        if len(str(rating)) == 1:
+            self.rating.place(x = 420, y = 400)
+        else:
+            self.rating.place(x = 410, y = 400)
         
         self.reviewLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Reviews:", fg_color = "black")
-        self.reviewLabel.place(x = 750, y = 325)
+        self.reviewLabel.place(x = 750, y = 315)
         
         
         self.phoneNumber = customtkinter.CTkLabel(self, text = "Phone Number: " + str(phoneNumber), width = 100, height = 30, font = ('Comic Sans', 20))
@@ -456,7 +484,7 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
             text = RAMSEYFrame1.textWrapping(review1,37, True, 125)
             text = "1. " + text + "..."
         self.review = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
-        self.review.place(x = 655, y = 375)
+        self.review.place(x = 655, y = 365)
         
         text = review2
         if(len(review2) >= 37):
@@ -500,8 +528,11 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.place = customtkinter.CTkLabel(self,image = photo, text = "")
         self.place.place(x = 700, y = 50)
         
-          
-        
+    def openWebsite(self, websiteURL):
+        if websiteURL == "":
+            messagebox.showinfo("Website", "No website has been found!")     
+        else:
+            webbrowser.open_new(websiteURL)
         
     def backToMenu(self):
         self.withdraw()
