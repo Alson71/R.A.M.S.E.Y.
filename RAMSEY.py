@@ -153,6 +153,8 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.result_labels[i] = customtkinter.CTkLabel(self, bg_color="transparent", height=40, width=100, text="")
             self.increment += 280
 
+        threading.Thread(target = self.traceVars).start()
+    def traceVars(self):
         self.vars[0].trace("w",self.enableArea)       
         self.vars[1].trace("w", self.enableArea)
         self.vars[0].trace("w",self.fetch_top_places)
@@ -220,6 +222,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                         self.photo = customtkinter.CTkImage(dark_image = tempPhoto, size = (250,200))
                         self.placesLabels[i].configure(image = self.photo)
                         self.placesLabels[i].place(x = self.increment - 70, y = 150)
+                        
                     
                     
                     
@@ -227,6 +230,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                     if 'result' in place_details and 'website' in place_details['result']:
                         website = place_details['result']['website']
                     else: website = ""
+                    
                     
                     if 'result' in place_details and 'formatted_phone_number'in place_details['result']:
                         phoneNumber = place_details['result']['formatted_phone_number']
@@ -252,12 +256,13 @@ class RAMSEYFrame2(customtkinter.CTk):
                     else:
                         hours = "Not Available"
                         
-                    if 'result' in place_details and 'url' in place_details['result']:
+                    if 'result' in place_details and ('url' in place_details['result'] and 'website' in place_details['result']):
                         request = requests.get(website + "menu") #Checking if the website already has a built in menu
                         if request.status_code == 200:
-                            self.menuURL = website + "/menu"         
+                            self.menuURL = website + "/menu"        
                         else: self.menuURL = place_details['result']['url']   
-                         
+                      
+                    
                     place_name = place['name']
                     address = place['formatted_address']
                     rating = place['rating']
@@ -272,12 +277,17 @@ class RAMSEYFrame2(customtkinter.CTk):
                     self.result_labels[i].configure(text=place_name)
                     self.viewButtons[i].configure(command=lambda index=i: self.openResult(index))
                     
+                    
+                    
                     self.viewButtons[i].place(x = self.increment, y = 450)
+                    self.viewButtons[i].configure(state = "disabled")
+                    
                     self.result_labels[i].place(x=self.increment, y=385)
                     self.increment += 280
                            
         for i in range(3):
             self.dropdowns[i].configure(state = "normal")
+            self.viewButtons[i].configure(state = "normal")
             self.tempFields[i] = self.dropdowns[i].get()
     
     def openResult(self, arg):
@@ -390,7 +400,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
     # Start displaying frames
             update_label(0)      
         
-#Frame that will show the result of any restaurant    
+#Class that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTkToplevel):
 
     def __init__(self,master,ramseyFrame2,name,websiteURL,hours,address,rating,phoneNumber,review1,review2,photo,menuURL,*args,**kwargs):
