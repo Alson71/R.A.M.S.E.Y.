@@ -103,7 +103,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         
     
         self.areas = [None] * 5
-        self.areas[0] = ["Upper East Side", "Upper West Side", "Midtown", "Greenwich", "East Village"]
+        self.areas[0] = ["Upper East Side", "Upper West Side", "Midtown", "Time Square", "East Village"]
         self.areas[1] = ["Long Island City", "Astoria", "Forest Hills", "Queens Village", "Kew Gardens"]
         self.areas[2] = ["Riverdale", "Morris Park", "Parkchester", "Pelham Bay", "Fordham"]
         self.areas[3] = ["Brooklyn Heights", "DUMBO", "Prospect Heights", "Coney Island", "Flatbush"]
@@ -153,8 +153,6 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.result_labels[i] = customtkinter.CTkLabel(self, bg_color="transparent", height=40, width=100, text="")
             self.increment += 280
 
-        threading.Thread(target = self.traceVars).start()
-    def traceVars(self):
         self.vars[0].trace("w",self.enableArea)       
         self.vars[1].trace("w", self.enableArea)
         self.vars[0].trace("w",self.fetch_top_places)
