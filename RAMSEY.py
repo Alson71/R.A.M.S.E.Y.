@@ -171,7 +171,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.dropdowns[2].configure(state = "disabled")
        
         #Google Maps API Key
-        self.api_key = 'AIzaSyAK1ms7Rl6vOVsZifEZPvCAgjT_ivmJGUY'  
+        self.api_key = 'AIzaSyC7f-Lrm4uisbd6pnspidl1oMsz3sKk3CI'  
         self.gmaps = Client(key=self.api_key)
 
             
