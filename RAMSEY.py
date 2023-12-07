@@ -304,10 +304,11 @@ class RAMSEYFrame2(customtkinter.CTk):
     
     def openResult(self,arg,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL):
         self.withdraw()
-        if self.ramseyFrame4[arg] == None:
+        if self.ramseyFrame4[arg] == None or not self.ramseyFrame4[arg].winfo_exists():
             self.openTopLevel(0,arg,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL)
         else:
             self.ramseyFrame3 = RAMSEYFrame3(self)
+        
              
         self.after(11000,lambda: self.openTopLevel(1,arg,name,website,hours,address,rating,phoneNumber,reviews,reviews1,photo,menuURL))
         
@@ -320,7 +321,7 @@ class RAMSEYFrame2(customtkinter.CTk):
                 self.ramseyFrame4[arg2].withdraw()
                 
         elif arg == 1:
-            self.ramseyFrame3.destroy()
+            self.ramseyFrame3.destroy() 
             self.ramseyFrame4[arg2].deiconify()
             
     
