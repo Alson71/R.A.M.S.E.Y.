@@ -344,7 +344,7 @@ class RAMSEYFrame2(customtkinter.CTk):
     
         
         
-#Loading Screen (3rd Frame)       
+#Loading Screen (3rd Window)       
 class RAMSEYFrame3(customtkinter.CTkToplevel):
     def __init__(self,*args,**kwargs):
         super().__init__(*args,**kwargs)   
@@ -422,7 +422,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
     # Start displaying frames
             update_label(0)      
         
-#Frame that will show the result of any restaurant    
+#Window that will show the result of any restaurant    
 class RAMSEYFrame4(customtkinter.CTkToplevel):
 
     def __init__(self,master,ramseyFrame2,name,websiteURL,hours,address,rating,phoneNumber,review1,review2,photo,menuURL,*args,**kwargs):
