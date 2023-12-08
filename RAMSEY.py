@@ -10,6 +10,8 @@ import threading
 from io import BytesIO
 import webbrowser
 from datetime import date
+import secrets
+
 
 #The first window
 class RAMSEYFrame1(customtkinter.CTk):
@@ -347,10 +349,12 @@ class RAMSEYFrame2(customtkinter.CTk):
 #Loading Screen (3rd Window)       
 class RAMSEYFrame3(customtkinter.CTkToplevel):
     def __init__(self,*args,**kwargs):
-        super().__init__(*args,**kwargs)   
+        super().__init__(*args,**kwargs)     
         
         self.animationIndex = 0
-        self.animations = ["Working hard for your results", "Working hard for your results.", "Working hard for your results..", "Working hard for your results..."]
+        animationWords = ["Working hard for your results", "Just a moment, your food is coming", "Thank you for using RAMSEY"]
+        randomWords = secrets.choice(animationWords)
+        self.animations = [randomWords, randomWords + '.', randomWords + '..', randomWords +'...']
         
         w = 1000
         h = 600
@@ -363,21 +367,28 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
         self.title("RAMSEY")
         self.resizable("False","False")
         self.wm_protocol("WM_DELETE_WINDOW",exit)
-
+        
+        listBackgrounds = ["https://mcdn.wallpapersafari.com/medium/57/18/3gV28C.jpg", "https://mcdn.wallpapersafari.com/medium/78/89/1pt8VD.jpg", "https://mcdn.wallpapersafari.com/medium/34/85/5OBSWn.jpg"]
+        randomBackground = secrets.choice(listBackgrounds)
+        
+        background_image = PIL.Image.open(requests.get(randomBackground, stream=True).raw)
+        resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
+        background_label = customtkinter.CTkLabel(self, image=resizeImage1, text = "")
+        background_label.place(x= -90,y= -80)
+        
         loadingImage = PIL.Image.open(requests.get('https://cdn.openart.ai/uploads/image_Qz5b9Umf_1677711675034_512.webp', stream =True).raw)
         resizeImage = customtkinter.CTkImage(dark_image = loadingImage, size = (200,200))
         picture = customtkinter.CTkLabel(self, image = resizeImage, text = "")
         picture.place(x = 400, y = 125)
-        
-
+             
         self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
         self.loadingReminder.place(x= 300, y=350)
         self.bar = customtkinter.CTkProgressBar(self, orientation = 'horizontal', mode = 'indeterminate', width = 500, height = 50)
         self.bar.place(x = 250, y = 450)
+        
        
         self.update()
         threading.Thread(target=self.loadingAnimation).start()
-        
 
 
     def loadingAnimation(self):
@@ -399,8 +410,9 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
             
             
     def loadingScreenGif(self):
-        gif_url = "https://www.icegif.com/wp-content/uploads/smiley-face-icegif-3.gif"  
-        response = requests.get(gif_url)
+        gif_url = ["https://www.icegif.com/wp-content/uploads/smiley-face-icegif-3.gif", "https://media1.tenor.com/m/quNHRVDoTVgAAAAC/excited-cute.gif", "https://i.pinimg.com/originals/6c/49/01/6c4901a02c1b54a728980d55c3f2e179.gif"]  
+        randomGif = secrets.choice(gif_url)
+        response = requests.get(randomGif)
         
         if response.status_code == 200:
             gif = PIL.Image.open(BytesIO(response.content))
@@ -440,7 +452,11 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.resizable("False","False")
         self.wm_protocol("WM_DELETE_WINDOW",exit) 
         
-          
+        background_image = PIL.Image.open(requests.get("https://mcdn.wallpapersafari.com/medium/45/8/e5qirD.png", stream=True).raw)
+        resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
+        background_label = customtkinter.CTkLabel(self, image=resizeImage1, text = "")
+        background_label.place(x= -90,y= -80)
+        
         
         self.backButton = customtkinter.CTkButton(self, width = 100, height = 30, text = "Back", command = self.backToMenu)
         self.backButton.place(x = 50, y = 25)
