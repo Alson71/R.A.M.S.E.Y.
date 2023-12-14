@@ -164,7 +164,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.increment += 280
 
         
-    
+
         self.vars[0].trace("w",self.enableArea)       
         self.vars[1].trace("w", self.enableArea)
         self.vars[0].trace("w", lambda *args: self.fetch_top_places_threaded(*args))
