@@ -3,6 +3,7 @@ from tkinter import messagebox
 import PIL.Image
 import customtkinter
 import requests
+import googlemaps
 from googlemaps import Client 
 from tkinter.ttk import *
 from time import sleep 
@@ -11,6 +12,7 @@ from io import BytesIO
 import webbrowser
 from datetime import date
 import secrets
+import sys
 
 
 #The first window
@@ -30,7 +32,8 @@ class RAMSEYFrame1(customtkinter.CTk):
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
-        self.wm_protocol("WM_DELETE_WINDOW",exit)
+        self.wm_protocol("WM_DELETE_WINDOW",sys.exit)
+        
         
         background_image = PIL.Image.open(requests.get("https://cdn.openart.ai/stable_diffusion/05d2d2aa852fd048b29b4e0b13972653dd20c2b7_2000x2000.webp", stream=True).raw)
         resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
@@ -97,7 +100,7 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
-        self.wm_protocol("WM_DELETE_WINDOW",exit)
+        self.wm_protocol("WM_DELETE_WINDOW",sys.exit)
         
         background_image = PIL.Image.open(requests.get("https://static0.gamerantimages.com/wordpress/wp-content/uploads/2022/10/1-Main-Feature-Photo.jpg", stream=True).raw)
         resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
@@ -129,6 +132,8 @@ class RAMSEYFrame2(customtkinter.CTk):
         self.address = ["","",""]
         self.rating = ["","",""]
         self.phoneNumber = ["","",""]
+        
+        self.resetBoxes = False
     
         self.vars = [None] * 3
         self.labels = [None] * 3
@@ -164,7 +169,7 @@ class RAMSEYFrame2(customtkinter.CTk):
             self.increment += 280
 
         
-
+    
         self.vars[0].trace("w",self.enableArea)       
         self.vars[1].trace("w", self.enableArea)
         self.vars[0].trace("w", lambda *args: self.fetch_top_places_threaded(*args))
@@ -179,7 +184,14 @@ class RAMSEYFrame2(customtkinter.CTk):
             
             
     def fetch_top_places_threaded(self, *args):
-        threading.Thread(target=self.fetch_top_places, args=args).start()
+            threading.Thread(target=self.fetch_top_places, args=args).start()
+            
+    
+    def returnBoxes(self):
+        for i in range(3):
+            self.vars[i].set("Select")    
+        self.resetBoxes = False
+           
         
     def enableArea(self, *args):
         if self.temp != self.dropdowns[1].get() and self.dropdowns[1].get() != "Select" and self.dropdowns[2].cget("state") == "normal":
@@ -211,7 +223,8 @@ class RAMSEYFrame2(customtkinter.CTk):
         cuisine = self.dropdowns[0].get()
         borough = self.dropdowns[1].get()
         area = self.dropdowns[2].get()
-    
+
+        
         # Fetch top 3 places from Google Places API based on user selection and makes sure to track if one of the fields have been changed
         if cuisine != "Select" and borough != "Select" and area != "Select" and self.temp == borough:
             if self.tempFields[0] != self.dropdowns[0].get() or self.tempFields[1] or self.dropdowns[1].get() or self.tempFields[2] != self.dropdowns[2].get():
@@ -219,11 +232,23 @@ class RAMSEYFrame2(customtkinter.CTk):
                 #To prevent the user from causing errors while parsing data
                 for l in range(3):
                     self.dropdowns[l].configure(state = "disabled")  
+                
+                #Checks if the Google Places API is currently disabled or enabled        
+                try:    
+                    places_result = self.gmaps.places(query=f"{cuisine} restaurant in {area}, {borough}")
+                except googlemaps.exceptions.ApiError:
+                    self.resetBoxes = True
+                    if self.dropdowns[0].get() != "Select": #To make sure not to repeat the messagebox
+                        messagebox.showinfo("Google Places API","Google Places API isn't enabled!")
+                    self.returnBoxes()
+                    for k in range(2):
+                        self.dropdowns[k].configure(state = "normal")
+                    return
                     
-                places_result = self.gmaps.places(query=f"{cuisine} restaurant in {area}, {borough}")
-
             # Get the top 3 places from the API response
+            
                 top_places = places_result['results'][:3]
+            
 
             # Display the top 3 places in the GUI
                 self.increment = 160
@@ -366,7 +391,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
-        self.wm_protocol("WM_DELETE_WINDOW",exit)
+        self.wm_protocol("WM_DELETE_WINDOW",sys.exit)
         
         listBackgrounds = ["https://mcdn.wallpapersafari.com/medium/57/18/3gV28C.jpg", "https://mcdn.wallpapersafari.com/medium/78/89/1pt8VD.jpg", "https://mcdn.wallpapersafari.com/medium/34/85/5OBSWn.jpg"]
         randomBackground = secrets.choice(listBackgrounds)
@@ -384,7 +409,10 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
         self.loadingReminder = customtkinter.CTkLabel(self, text = '', font = ('Comic Sans', 30), fg_color= 'black', width = 200, height = 50)
         self.loadingReminder.place(x= 300, y=350)
         self.bar = customtkinter.CTkProgressBar(self, orientation = 'horizontal', mode = 'indeterminate', width = 500, height = 50)
-        self.bar.place(x = 250, y = 450)
+        if randomWords == animationWords[1]:
+            self.bar.place(x = 280, y = 450)
+        else:
+            self.bar.place(x = 250, y = 450)
         
        
         self.update()
@@ -413,6 +441,7 @@ class RAMSEYFrame3(customtkinter.CTkToplevel):
         gif_url = ["https://www.icegif.com/wp-content/uploads/smiley-face-icegif-3.gif", "https://media1.tenor.com/m/quNHRVDoTVgAAAAC/excited-cute.gif", "https://i.pinimg.com/originals/6c/49/01/6c4901a02c1b54a728980d55c3f2e179.gif"]  
         randomGif = secrets.choice(gif_url)
         response = requests.get(randomGif)
+        
         
         if response.status_code == 200:
             gif = PIL.Image.open(BytesIO(response.content))
@@ -450,7 +479,7 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         self.geometry("%dx%d+%d+%d" % (w,h,x,y))
         self.title("RAMSEY")
         self.resizable("False","False")
-        self.wm_protocol("WM_DELETE_WINDOW",exit) 
+        self.wm_protocol("WM_DELETE_WINDOW",sys.exit) 
         
         background_image = PIL.Image.open(requests.get("https://mcdn.wallpapersafari.com/medium/45/8/e5qirD.png", stream=True).raw)
         resizeImage1 = customtkinter.CTkImage(dark_image = background_image, size = (1250, 800))
@@ -463,37 +492,37 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
         
         self.websiteButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Website", command = lambda: self.openWebsite(websiteURL))
         self.websiteButton.place(x = 325, y = 200)
-        self.menuButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Menu", command = lambda: webbrowser.open_new(menuURL))
+        self.menuButton = customtkinter.CTkButton(self,width = 100, height = 30, text = "Menu", command = lambda: self.openMenu(menuURL))
         self.menuButton.place(x = 535, y = 200)
         
         self.addressLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Address:", fg_color = "black")
-        self.addressLabel.place(x = 70, y = 315)
+        self.addressLabel.place(x = 70, y = 322)
         
         text = address
         if len(address) >= 18:    
             text = RAMSEYFrame1.textWrapping(address,18,False,0)
             
         self.address = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
-        self.address.place(x = 60, y = 375)
+        self.address.place(x = 60, y = 382)
         
         self.hours = customtkinter.CTkLabel(self, text = str(hours), width = 100, height = 50, font = ('Comic Sans', 20))
-        self.hours.place(x = 340, y = 230)
+        self.hours.place(x = 340, y = 237)
         
         self.ratingLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Rating:", fg_color = "black")
-        self.ratingLabel.place(x = 420, y = 315)
+        self.ratingLabel.place(x = 420, y = 322)
         
         self.rating = customtkinter.CTkLabel(self, text = str(rating) + " out of 5.0",width = 100, height = 50, font = ('Comic Sans', 20))
         if len(str(rating)) == 1:
-            self.rating.place(x = 420, y = 400)
+            self.rating.place(x = 420, y = 407)
         else:
-            self.rating.place(x = 410, y = 400)
+            self.rating.place(x = 410, y = 407)
         
         self.reviewLabel = customtkinter.CTkLabel(self, width = 100, height = 50, font = ('Script',45), text = "Reviews:", fg_color = "black")
-        self.reviewLabel.place(x = 750, y = 315)
+        self.reviewLabel.place(x = 750, y = 322)
         
         
         self.phoneNumber = customtkinter.CTkLabel(self, text = "Phone Number: " + str(phoneNumber), width = 100, height = 30, font = ('Comic Sans', 20))
-        self.phoneNumber.place(x = 340, y = 280)
+        self.phoneNumber.place(x = 340, y = 287)
         
         #Formatting the reviews and limiting them to only 75 characters
         text = review1
@@ -501,14 +530,14 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
             text = RAMSEYFrame1.textWrapping(review1,37, True, 125)
             text = "1. " + text + "..."
         self.review = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
-        self.review.place(x = 655, y = 365)
+        self.review.place(x = 655, y = 372)
         
         text = review2
         if(len(review2) >= 37):
             text = RAMSEYFrame1.textWrapping(review2,37, True, 125)
             text = "2. " + text + "..."
         self.review1 = customtkinter.CTkLabel(self, text = text,width = 100, height = 50, font = ('Comic Sans', 20))
-        self.review1.place(x = 655, y = 480)
+        self.review1.place(x = 655, y = 487)
         
         
         self.titleOfRes = customtkinter.CTkLabel(self, height = 50, width = 110, font = ('Comic Sans',40), fg_color = "blue", text_color = "turquoise")
@@ -548,6 +577,12 @@ class RAMSEYFrame4(customtkinter.CTkToplevel):
     def openWebsite(self, websiteURL):
         if websiteURL == "":
             messagebox.showinfo("Website", "No website has been found!")     
+        else:
+            webbrowser.open_new(websiteURL)
+            
+    def openMenu(self, websiteURL):
+        if websiteURL == "":
+            messagebox.showinfo("Menu", "No menu URL has been found!")     
         else:
             webbrowser.open_new(websiteURL)
         
