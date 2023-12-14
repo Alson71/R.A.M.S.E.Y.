@@ -1,4 +1,4 @@
-# RAMSEY
+# R.A.M.S.E.Y. (Remarkable Aromas Make Sizzling Enjoyable Yumminess)
 A web scraping Python application that features different cultural cuisines in the boroughs of New York City. This project was a collaboration of three people, along with usage of the Google Places API to help with the web scraping process.
 
 # Key Features:
