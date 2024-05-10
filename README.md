@@ -7,7 +7,7 @@ R.A.M.S.E.Y, or **"Remarkable Aromas Make Sizzling Enjoyable Yumminess"** is a w
 - All five boroughs (five areas per each borough)
 # Screenshots
 Start Screen
-![random image](https://i.ibb.co/rG7xjsD/Screenshot-2023-12-07-193414.png)
+![random image](https://i.ibb.co/vmpFqCb/Screenshot-2023-12-07-193414.png)
 No Options Configured
 ![No options configured](https://i.ibb.co/JHZmQ4h/Screenshot-2023-12-08-103239.png)
 
