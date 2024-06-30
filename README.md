@@ -12,7 +12,7 @@ No Options Configured
 ![No options configured](https://i.ibb.co/gPfP911/Screenshot-2023-12-08-103239.png)
 
 Korean Food in DUMBO, Brooklyn
-![Another image](https://i.ibb.co/WWydBwn/Screenshot-2023-12-07-214034.png)
+![Another image](https://i.ibb.co/PmzzKzz/Screenshot-2023-12-07-214034.png)
 
 Results Screen
 ![Another image](https://i.ibb.co/xJTBJxL/Screenshot-2024-02-17-114537.png)
