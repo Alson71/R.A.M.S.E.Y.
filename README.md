@@ -9,7 +9,7 @@ R.A.M.S.E.Y, or **"Remarkable Aromas Make Sizzling Enjoyable Yumminess"** is a w
 Start Screen
 ![random image](https://i.ibb.co/vmpFqCb/Screenshot-2023-12-07-193414.png)
 No Options Configured
-![No options configured](https://i.ibb.co/JHZmQ4h/Screenshot-2023-12-08-103239.png)
+![No options configured](https://i.ibb.co/gPfP911/Screenshot-2023-12-08-103239.png)
 
 Korean Food in DUMBO, Brooklyn
 ![Another image](https://i.ibb.co/WWydBwn/Screenshot-2023-12-07-214034.png)
