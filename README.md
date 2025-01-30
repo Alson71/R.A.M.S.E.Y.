@@ -7,15 +7,15 @@ R.A.M.S.E.Y, or **"Remarkable Aromas Make Sizzling Enjoyable Yumminess"** is a w
 - All five boroughs (five areas per each borough)
 # Screenshots
 Start Screen
-![random image](https://i.ibb.co/vmpFqCb/Screenshot-2023-12-07-193414.png)
+![Image](https://github.com/user-attachments/assets/9d12e84f-eb93-4f3a-b46f-cce767ae0d34)
 No Options Configured
-![No options configured](https://i.ibb.co/gPfP911/Screenshot-2023-12-08-103239.png)
+![Image](https://github.com/user-attachments/assets/da357f13-2923-47ad-bb3f-17fe14a1929d)
 
 Korean Food in DUMBO, Brooklyn
-![Another image](https://i.ibb.co/PmzzKzz/Screenshot-2023-12-07-214034.png)
+![Image](https://github.com/user-attachments/assets/6f16dfe4-7c46-4bb8-a6b5-f486deeaf70e)
 
 Results Screen
-![Another image](https://i.ibb.co/xJTBJxL/Screenshot-2024-02-17-114537.png)
+![Image](https://github.com/user-attachments/assets/3191091c-f778-40ab-b801-528934065716)
 
 # Sources
 [Background Image for Start Screen](https://cdn.openart.ai/stable_diffusion/05d2d2aa852fd048b29b4e0b13972653dd20c2b7_2000x2000.webp)
