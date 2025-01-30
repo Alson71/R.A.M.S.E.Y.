@@ -15,7 +15,7 @@ Korean Food in DUMBO, Brooklyn
 ![Image](https://github.com/user-attachments/assets/da357f13-2923-47ad-bb3f-17fe14a1929d)
 
 Results Screen
-![Image](https://github.com/user-attachments/assets/3191091c-f778-40ab-b801-528934065716)
+![Image](https://github.com/user-attachments/assets/feb26dd7-b316-4da5-9376-276a4bf85823)
 
 # Sources
 [Background Image for Start Screen](https://cdn.openart.ai/stable_diffusion/05d2d2aa852fd048b29b4e0b13972653dd20c2b7_2000x2000.webp)
